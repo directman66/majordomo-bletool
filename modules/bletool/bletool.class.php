@@ -167,7 +167,7 @@ $answ=shell_exec($cmd);
 $debug = file_get_contents($file);
 $debug.= $cmd.":".$answ."<br>\n";
 
-file_put_contents($file, $debug);
+//file_put_contents($file, $debug);
 
 
 sleep(1);
@@ -175,14 +175,14 @@ $cmd='sudo hciconfig hci0 down';
 $answ=shell_exec($cmd);
 $debug = file_get_contents($file);
 $debug.= $cmd.":".$answ."<br>\n";
-file_put_contents($file, $debug);
+//file_put_contents($file, $debug);
 
 sleep(1);
 $cmd='sudo hciconfig hci0 up';
 $answ=shell_exec($cmd);
 $debug = file_get_contents($file);
 $debug.= $cmd.":".$answ."<br>\n";
-file_put_contents($file, $debug);
+//file_put_contents($file, $debug);
 
 sleep(1);
 //$cmd='sudo timeout -s INT 30s hcitool lescan | grep ":"';
@@ -331,6 +331,7 @@ ble_devices: SERVICES varchar(100) NOT NULL DEFAULT ''
 ble_devices: ENABLE int(1) 
 
 ble_services: ID int(10) unsigned NOT NULL auto_increment
+ble_services: IDDEV int(10) 
 ble_services: manufacturer varchar(100) NOT NULL DEFAULT ''
 ble_services: lpmvers varchar(100) NOT NULL DEFAULT ''
 ble_services: lpmsubvers varchar(100) NOT NULL DEFAULT ''
@@ -338,9 +339,16 @@ ble_services: handledec varchar(100) NOT NULL DEFAULT ''
 ble_services: handlehex varchar(100) NOT NULL DEFAULT ''
 ble_services: features varchar(100) NOT NULL DEFAULT ''
 ble_services: featurestext varchar(100) NOT NULL DEFAULT ''
+ble_services: debug varchar(100) NOT NULL DEFAULT ''
+ble_services: parametr varchar(100) NOT NULL DEFAULT ''
+ble_services: value varchar(100) NOT NULL DEFAULT ''
+
+
+
 
 
 ble_commands: ID int(10) unsigned NOT NULL auto_increment
+
 ble_commands: TITLE varchar(100) NOT NULL DEFAULT ''
 ble_commands: VALUE varchar(255) NOT NULL DEFAULT ''
 ble_commands: DEVICE_ID int(10) NOT NULL DEFAULT '0'
@@ -369,29 +377,98 @@ unlink(ROOT."cms/cached/bleutils");
 
 
 
- function getservices($mac) {
+ function getservices($id) {
 
-$cmd_rec = SQLSelectOne("SELECT * FROM ble_devices where MAC='$mac'");
+$cmd_rec = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'");
 $id=$cmd_rec['ID'];
+$mac=$cmd_rec['MAC'];
 
 
+$file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
+//echo php_uname();
+//echo PHP_OS;
+$debug = file_get_contents($file);
+$debug .= "get info about $mac run at ".gg('sysdate').' '.gg('timenow')."<br>\n";
+file_put_contents($file, $debug);
 
+
+//echo "это линус";
+//$cmd='nmap -sn 192.168.1.0/24';
+//$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
 $data = array();
-shell_exec('sudo hciconfig hci0 down');
-shell_exec('sudo hciconfig hci0 reset');
-shell_exec('sudo hciconfig hci0 up');
-//$out = shell_exec('sudo timeout 5 hcitool lescan');
-//sleep(30);
-//shell_exec('sudo hciconfig hci0 reset');
-//shell_exec('sudo hciconfig hci0 up');
+$cmd='sudo hciconfig hci0 reset';
+$answ=shell_exec($cmd);
 
-//exec('sudo hcitool scan | grep ":"', $out);
-//exec('sudo timeout -s INT 30s hcitool lescan | grep ":"', $data);
+$debug = file_get_contents($file);
+$debug.= $cmd.":".$answ."<br>\n";
 
-exec('sudo hcitool leinfo '.$mac.'  | grep ":"', $data);
-echo $data;
+//file_put_contents($file, $debug);
 
-$cmd_rec = SQLSelectOne("SELECT * FROM ble_services where ID='$id'");
+
+sleep(1);
+$cmd='sudo hciconfig hci0 down';
+$answ=shell_exec($cmd);
+$debug = file_get_contents($file);
+$debug.= $cmd.":".$answ."<br>\n";
+//file_put_contents($file, $debug);
+
+sleep(1);
+$cmd='sudo hciconfig hci0 up';
+$answ=shell_exec($cmd);
+$debug = file_get_contents($file);
+$debug.= $cmd.":".$answ."<br>\n";
+//file_put_contents($file, $debug);
+
+sleep(1);
+//$cmd='sudo timeout -s INT 30s hcitool lescan | grep ":"';
+//$answ=shell_exec($cmd,$data);
+
+
+$cmd="sudo hcitool leinfo $mac";
+//echo $cmd;
+
+$answ=shell_exec($cmd);
+$debug = file_get_contents($file);
+$debug.= $cmd.":".$answ."<br>\n";
+file_put_contents($file, $debug);
+
+
+
+$data2 =preg_split('/\\r\\n?|\\n/',$answ);
+//print_r($data2);
+foreach ($data2 as $key){
+$par=explode(":",$key)[0];
+$val=explode(":",$key)[1];
+
+$sql="SELECT * FROM ble_services where IDDEV='$id' and parametr='".trim($par)."'";
+echo $sql."<br>";
+$cmd_rec2 = SQLSelectOne($sql);
+$cmd_rec2['debug']=$answ;
+
+//if (array_key_exists($key,$cmd_rec2)) $cmd_rec2[$key]=$val;
+$cmd_rec2['IDDEV']=$id;
+$cmd_rec2['value']=trim($val);
+$cmd_rec2['parametr']=trim($par);
+
+if (($cmd_rec2['value'])&&($cmd_rec2['parametr']))
+{
+if (!$cmd_rec2['ID']) 
+{
+//$cmd_rec['ONLINE']=$onlinest;
+SQLInsert('ble_services', $cmd_rec2);
+} else {
+SQLUpdate('ble_services', $cmd_rec2);
+}
+}
+
+
+
+
+
+}
+
+
+
 
 
 
