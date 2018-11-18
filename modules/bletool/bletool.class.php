@@ -7,9 +7,9 @@
 */
 //
 //
-ini_set ('display_errors', 'off');
+//ini_set ('display_errors', 'off');
 
-class wol extends module {
+class bletool extends module {
 /**
 * yandex_tts
 *
@@ -17,7 +17,7 @@ class wol extends module {
 *
 * @access private
 */
-function wol() {
+function bletool() {
   $this->name="bletool";
   $this->title="BLEtool";
   $this->module_category="<#LANG_SECTION_DEVICES#>";
@@ -114,7 +114,8 @@ function run() {
 
 
  if ($this->view_mode=='indata_del') {
-   $this->delete($this->id);}	
+   $this->delete($this->id);
+}	
 
 
 
@@ -128,10 +129,6 @@ if ($this->view_mode=='discover') {
 
 }
 
-if ($this->view_mode=='nmap') {
-  $this->nmap();
-
-}
 
 
 if ($this->view_mode=='clearall') {
@@ -191,7 +188,7 @@ else
  {
 //echo "это виндовс";
 //$cmd='nmap -sn 192.168.1.0/24';
-echo 'linux system only';
+echo "linux system only";
 }
 
 
