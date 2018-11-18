@@ -121,7 +121,7 @@ function run() {
 
 
 if ($this->view_mode=='ping') {
-  $this->pingall();
+//  $this->pingall();
 }
 
 if ($this->view_mode=='discover') {
@@ -147,29 +147,44 @@ if ($this->view_mode=='clearall') {
 if (substr(php_uname(),0,5)=='Linux')  {
 //echo "это линус";
 //$cmd='nmap -sn 192.168.1.0/24';
-
 //$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
-$cmd='arp -a';
-$answ=shell_exec($cmd);
+$data = array();
+shell_exec('sudo hciconfig hci0 down');
+shell_exec('sudo hciconfig hci0 reset');
+shell_exec('sudo hciconfig hci0 up');
+//$out = shell_exec('sudo timeout 5 hcitool lescan');
+//sleep(30);
+//shell_exec('sudo hciconfig hci0 reset');
+//shell_exec('sudo hciconfig hci0 up');
+
+//exec('sudo hcitool scan | grep ":"', $out);
+exec('sudo timeout -s INT 30s hcitool lescan | grep ":"', $data);
+//echo $out;
+//sg('test.hci', print_r($out));
+
+//$cmd='arp -a';
+//$answ=shell_exec($cmd);
 //echo $answ;
-$data2 =preg_split('/\\r\\n?|\\n/',$answ);
 
-for($i=0;$i<count($data2);$i++) {
-$name=explode(' ',$data2[$i])[0];
-$ipadr=str_replace(')','',str_replace('(','',explode(' ',$data2[$i])[1]));
+//$data2 =preg_split('/\\r\\n?|\\n/',$out);
 
+			$total = count($data);
+			for($i=0; $i<$total; $i++) {
+				$data[$i] = trim($data[$i]);
+				$mac = trim(strtolower(substr($data[$i], 0, 17)));
+				$name = trim(substr($data[$i], 17));
+ 
+  			 	$vendor=$this->getvendor($mac);
 
-$mac=explode(' ',$data2[$i])[3];
+//echo  $mac."---".$name;
+   
 
-$vendor=$this->getvendor($mac);
-
-
+			if(!empty($mac)) {
 $cmd_rec = SQLSelectOne("SELECT * FROM ble_devices where MAC='$mac'");
 $cmd_rec['MAC']=$mac;
 $cmd_rec['IPADDR']=$ipadr;
 $cmd_rec['TITLE']=$name;
 $cmd_rec['VENDOR']=$vendor;
-
 
 if (!$cmd_rec['ID']) 
 {
@@ -177,14 +192,8 @@ if (!$cmd_rec['ID'])
 if (strlen($mac)>4) SQLInsert('ble_devices', $cmd_rec);
 } else {
 SQLUpdate('ble_devices', $cmd_rec);
-}
-}
-
-
-} 
-
+}}}} 
 else 
-
  {
 //echo "это виндовс";
 //$cmd='nmap -sn 192.168.1.0/24';
@@ -196,7 +205,7 @@ echo "linux system only";
 
 
 
-$this->pingall();
+//$this->pingall();
 }
 
 
@@ -345,6 +354,8 @@ return $vendor;
 * TW9kdWxlIGNyZWF0ZWQgTWFyIDEzLCAyMDE2IHVzaW5nIFNlcmdlIEouIHdpemFyZCAoQWN0aXZlVW5pdCBJbmMgd3d3LmFjdGl2ZXVuaXQuY29tKQ==
 *
 */
+
+
 
 
 
