@@ -122,6 +122,11 @@ function run() {
 }	
 
 
+ if ($this->view_mode=='getvalues') {
+    $this->getvalues($this->id);
+}	
+
+
 
 
 
@@ -140,6 +145,11 @@ if ($this->view_mode=='clearall') {
   $this->clearall();
 
 }
+
+         if ($this->view_mode == 'edit_devices') {
+            $this->edit_devices($out, $this->id);
+         }
+
 
 
 
@@ -161,30 +171,9 @@ if (substr(php_uname(),0,5)=='Linux')  {
 //$cmd='nmap -sn 192.168.1.0/24';
 //$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
 $data = array();
-$cmd='sudo hciconfig hci0 reset';
-$answ=shell_exec($cmd);
 
-$debug = file_get_contents($file);
-$debug.= $cmd.":".$answ."<br>\n";
+$this->resethci();
 
-//file_put_contents($file, $debug);
-
-
-sleep(1);
-$cmd='sudo hciconfig hci0 down';
-$answ=shell_exec($cmd);
-$debug = file_get_contents($file);
-$debug.= $cmd.":".$answ."<br>\n";
-//file_put_contents($file, $debug);
-
-sleep(1);
-$cmd='sudo hciconfig hci0 up';
-$answ=shell_exec($cmd);
-$debug = file_get_contents($file);
-$debug.= $cmd.":".$answ."<br>\n";
-//file_put_contents($file, $debug);
-
-sleep(1);
 //$cmd='sudo timeout -s INT 30s hcitool lescan | grep ":"';
 //$answ=shell_exec($cmd,$data);
 
@@ -375,6 +364,11 @@ unlink(ROOT."cms/cached/bleutils");
 
 
 
+   function edit_devices(&$out, $id)
+   {
+      require(DIR_MODULES . $this->name . '/devices_edit.inc.php');
+   }
+
 
 
  function getservices($id) {
@@ -395,31 +389,12 @@ file_put_contents($file, $debug);
 //echo "это линус";
 //$cmd='nmap -sn 192.168.1.0/24';
 //$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
+
+$this->resethci();
+
 $data = array();
-$cmd='sudo hciconfig hci0 reset';
-$answ=shell_exec($cmd);
-
-$debug = file_get_contents($file);
-$debug.= $cmd.":".$answ."<br>\n";
-
-//file_put_contents($file, $debug);
 
 
-sleep(1);
-$cmd='sudo hciconfig hci0 down';
-$answ=shell_exec($cmd);
-$debug = file_get_contents($file);
-$debug.= $cmd.":".$answ."<br>\n";
-//file_put_contents($file, $debug);
-
-sleep(1);
-$cmd='sudo hciconfig hci0 up';
-$answ=shell_exec($cmd);
-$debug = file_get_contents($file);
-$debug.= $cmd.":".$answ."<br>\n";
-//file_put_contents($file, $debug);
-
-sleep(1);
 //$cmd='sudo timeout -s INT 30s hcitool lescan | grep ":"';
 //$answ=shell_exec($cmd,$data);
 
@@ -441,7 +416,7 @@ $par=explode(":",$key)[0];
 $val=explode(":",$key)[1];
 
 $sql="SELECT * FROM ble_services where IDDEV='$id' and parametr='".trim($par)."'";
-echo $sql."<br>";
+//echo $sql."<br>";
 $cmd_rec2 = SQLSelectOne($sql);
 $cmd_rec2['debug']=$answ;
 
@@ -482,6 +457,161 @@ SQLUpdate('ble_services', $cmd_rec2);
 
 
 
+
+
+ function getvalues($id) {
+
+$cmd_rec = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'");
+$id=$cmd_rec['ID'];
+$mac=$cmd_rec['MAC'];
+$type=$cmd_rec['MAC'];
+
+
+
+
+
+$file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
+//echo php_uname();
+//echo PHP_OS;
+$debug = file_get_contents($file);
+$debug .= "get info about $mac run at ".gg('sysdate').' '.gg('timenow')."<br>\n";
+file_put_contents($file, $debug);
+
+
+//echo "это линус";
+//$cmd='nmap -sn 192.168.1.0/24';
+//$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
+$data = array();
+
+$this->resethci();
+
+switch ($type) {
+   case "eQ-3-radiator-thermostat":
+
+
+	$cmd="sudo hcitool leinfo $mac";
+//echo $cmd;
+
+	$answ=shell_exec($cmd);
+	$debug = file_get_contents($file);
+	$debug.= $cmd.":".$answ."<br>\n";
+	file_put_contents($file, $debug);
+
+
+
+	$data2 =preg_split('/\\r\\n?|\\n/',$answ);
+	//print_r($data2);
+	foreach ($data2 as $key){
+	$par=explode(":",$key)[0];
+	$val=explode(":",$key)[1];
+
+	$sql="SELECT * FROM ble_commands where IDDEV='$id' and parametr='".trim($par)."'";
+	//echo $sql."<br>";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['debug']=$answ;
+
+	//if (array_key_exists($key,$cmd_rec2)) $cmd_rec2[$key]=$val;
+	$cmd_rec2['IDDEV']=$id;
+	$cmd_rec2['value']=trim($val);
+	$cmd_rec2['parametr']=trim($par);
+
+	if (($cmd_rec2['value'])&&($cmd_rec2['parametr']))
+	{
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+	}}
+break;
+   case "mi flora plant":
+
+
+	$cmd="sudo hcitool leinfo $mac";
+//echo $cmd;
+
+	$answ=shell_exec($cmd);
+	$debug = file_get_contents($file);
+	$debug.= $cmd.":".$answ."<br>\n";
+	file_put_contents($file, $debug);
+
+
+
+	$data2 =preg_split('/\\r\\n?|\\n/',$answ);
+	//print_r($data2);
+	foreach ($data2 as $key){
+	$par=explode(":",$key)[0];
+	$val=explode(":",$key)[1];
+
+	$sql="SELECT * FROM ble_commands where IDDEV='$id' and parametr='".trim($par)."'";
+	//echo $sql."<br>";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['debug']=$answ;
+
+	//if (array_key_exists($key,$cmd_rec2)) $cmd_rec2[$key]=$val;
+	$cmd_rec2['IDDEV']=$id;
+	$cmd_rec2['value']=trim($val);
+	$cmd_rec2['parametr']=trim($par);
+
+	if (($cmd_rec2['value'])&&($cmd_rec2['parametr']))
+	{
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+	}}
+break;
+
+}
+
+
+
+
+
+//return print_r($data);
+
+
+
+
+
+}
+
+
+
+
+
+
+ function resethci() {
+
+$cmd='sudo hciconfig hci0 reset';
+$answ=shell_exec($cmd);
+
+$debug = file_get_contents($file);
+$debug.= $cmd.":".$answ."<br>\n";
+
+sleep(1);
+$cmd='sudo hciconfig hci0 down';
+$answ=shell_exec($cmd);
+$debug = file_get_contents($file);
+$debug.= $cmd.":".$answ."<br>\n";
+
+
+sleep(1);
+$cmd='sudo hciconfig hci0 up';
+$answ=shell_exec($cmd);
+$debug = file_get_contents($file);
+$debug.= $cmd.":".$answ."<br>\n";
+
+
+sleep(1);
+
+
+}
 
  function getvendor($mac) {
 
