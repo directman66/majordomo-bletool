@@ -151,6 +151,11 @@ $file = ROOT.'cms/cached/bletools'; // полный путь к нужному �
 //echo php_uname();
 //echo PHP_OS;
 
+//$debug = "Snanning run at ".gg('sysdate').' '.gg('timenow')."<br>\n";
+//file_put_contents($file, $debug);
+
+
+
 if (substr(php_uname(),0,5)=='Linux')  {
 //echo "это линус";
 //$cmd='nmap -sn 192.168.1.0/24';
@@ -194,7 +199,7 @@ file_put_contents($file, $debug);
  
   			 	$vendor=$this->getvendor($mac);
 
-$debug ="Find " $mac.":".$name.":".$vendor."<br>\n";
+$debug ="Find ". $mac.":".$name.":".$vendor."<br>\n";
 file_put_contents($file, $debug);
    
 
@@ -220,12 +225,6 @@ else
 echo "linux system only";
 }
 
-
-
-
-
-
-//$this->pingall();
 }
 
 
@@ -321,6 +320,7 @@ ble_devices: ONLINE varchar(100) NOT NULL DEFAULT ''
 ble_devices: VENDOR varchar(100) NOT NULL DEFAULT ''
 ble_devices: TYPE varchar(100) NOT NULL DEFAULT ''
 ble_devices: SERVICES varchar(100) NOT NULL DEFAULT ''
+ble_devices: ENABLE int(1) NOT NULL DEFAULT ''
 
 ble_services: ID int(10) unsigned NOT NULL auto_increment
 ble_services: manufacturer varchar(100) NOT NULL DEFAULT ''
