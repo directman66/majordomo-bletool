@@ -1,0 +1,122 @@
+qwe
+<link rel="stylesheet" href="../templates/xiaomimiio/css/bootstrap-select.min.css">
+
+<form action="?" method="post" enctype="multipart/form-data" name="frmEdit" class="form-horizontal">
+	[#if OK#]
+	<div class="alert alert-success"><#LANG_DATA_SAVED#></div>
+	[#endif OK#]
+	
+	[#if ERR#]
+	<div class="alert alert-error"><#LANG_FILLOUT_REQURED#></div>
+	[#endif ERR#]
+<table width="100%"><tr><td>	
+	<fieldset>
+		[#if ID=""#]
+		<legend><#LANG_ADD#> <#LANG_DEVICE#></legend>
+		[#endif ID#]
+
+		[#if ID!=""#]
+		<div class="form-group">
+			<label class="col-lg-3 control-label"[#if ERR_ID#] style="color:red;font-weight:bold"[#endif#]>
+			 ID:
+			</label>
+			<div class="col-lg-4">[#ID#]</div>
+		</div>
+		[#endif#]
+
+
+		<div class="form-group">
+			<label class="col-lg-3 control-label"[#if ERR_TITLE#] style="color:red;font-weight:bold"[#endif#]>
+				<#LANG_TITLE#> (*):
+			</label>
+			<div class="col-lg-4"><input type="text" class="form-control" name="title" value="[#TITLE#]" id="title"></div>
+		</div>
+
+
+
+
+		[#if iddev!=""#]
+		<div class="form-group">
+			<label class="col-lg-3 control-label">
+			DEVICE_ID:
+			</label>
+			<div class="col-lg-4">[#iddev#]</div>
+		</div>
+		[#endif#]
+
+		[#if battery!=""#]
+		<div class="form-group">
+			<label class="col-lg-3 control-label"[#if ERR_battery#] style="color:red;font-weight:bold"[#endif#]>
+			 BATTERY:
+			</label>
+			<div class="col-lg-4">[#battery#]</div>
+		</div>
+		[#endif#]
+
+		[#if channel!=""#]
+		<div class="form-group">
+			<label class="col-lg-3 control-label"[#if ERR_channel#] style="color:red;font-weight:bold"[#endif#]>
+			 CHANNEL:
+			</label>
+			<div class="col-lg-4">[#channel#]</div>
+		</div>
+		[#endif#]
+
+
+		[#if temperature_C!=""#]
+		<div class="form-group">
+			<label class="col-lg-3 control-label"[#if ERR_temperature_C#] style="color:red;font-weight:bold"[#endif#]>
+			 temperature_C:
+			</label>
+			<div class="col-lg-4">[#temperature_C#]</div>
+		</div>
+		[#endif#]
+
+		[#if humidity!=""#]
+		<div class="form-group">
+			<label class="col-lg-3 control-label"[#if ERR_humidity#] style="color:red;font-weight:bold"[#endif#]>
+			 humidity:
+			</label>
+			<div class="col-lg-4">[#humidity#]</div>
+		</div>
+		[#endif#]
+
+
+		[#if json!=""#]
+		<div class="form-group">
+			<label class="col-lg-3 control-label"[#if ERR_json#] style="color:red;font-weight:bold"[#endif#]>
+			 json:
+			</label>
+			<div class="col-lg-4">[#json#]</div>
+		</div>
+		[#endif#]
+
+		
+
+		
+
+
+		
+		<div class="form-group">
+			<div class="col-lg-offset-3 col-lg-4">
+				[#if ID!=""#]
+				<button type="submit" name="subm" value="Submit" class="btn btn-primary"><#LANG_SUBMIT#></button>
+				[#else ID#]
+				<button type="submit" name="subm" value="Add" class="btn btn-primary"><#LANG_ADD#></button>
+				[#endif ID#]
+				<a href="?data_source=<#DATA_SOURCE#>" class="btn btn-default "><#LANG_STRING_BACK#></a>
+				<input type="hidden" name="id" value="<#ID#>">
+				<input type="hidden" name="view_mode" value="<#VIEW_MODE#>">
+				<input type="hidden" name="edit_mode" value="<#EDIT_MODE#>">
+				<input type="hidden" name="mode" value="update">
+				<input type="hidden" name="data_source" value="<#DATA_SOURCE#>">
+				<input type="hidden" name="tab" value="<#TAB#>">
+			</div>
+		</div>
+	</fieldset>
+</form>
+
+</td><td>
+<img src="../img/modules/[#TITLE#].png" width="400">
+</td></tr></table>
+
