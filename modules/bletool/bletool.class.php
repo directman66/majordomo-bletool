@@ -307,15 +307,34 @@ function usual(&$out) {
  function dbInstall($data) {
 
  $data = <<<EOD
- ble_devices: ID int(10) unsigned NOT NULL auto_increment
- ble_devices: TITLE varchar(100) NOT NULL DEFAULT ''
- ble_devices: MAC varchar(100) NOT NULL DEFAULT ''
- ble_devices: IPADDR varchar(100) NOT NULL DEFAULT ''
- ble_devices: NAME varchar(100) NOT NULL DEFAULT ''
- ble_devices: LASTPING varchar(100) NOT NULL DEFAULT ''
- ble_devices: ONLINE varchar(100) NOT NULL DEFAULT ''
- ble_devices: VENDOR varchar(100) NOT NULL DEFAULT ''
- ble_devices: SERVICES varchar(100) NOT NULL DEFAULT ''
+ble_devices: ID int(10) unsigned NOT NULL auto_increment
+ble_devices: TITLE varchar(100) NOT NULL DEFAULT ''
+ble_devices: MAC varchar(100) NOT NULL DEFAULT ''
+ble_devices: IPADDR varchar(100) NOT NULL DEFAULT ''
+ble_devices: NAME varchar(100) NOT NULL DEFAULT ''
+ble_devices: LASTPING varchar(100) NOT NULL DEFAULT ''
+ble_devices: ONLINE varchar(100) NOT NULL DEFAULT ''
+ble_devices: VENDOR varchar(100) NOT NULL DEFAULT ''
+ble_devices: TYPE varchar(100) NOT NULL DEFAULT ''
+ble_devices: SERVICES varchar(100) NOT NULL DEFAULT ''
+
+ble_services: ID int(10) unsigned NOT NULL auto_increment
+le_services: handledec varchar(100) NOT NULL DEFAULT ''
+ble_services: handlehex varchar(100) NOT NULL DEFAULT ''
+ble_services: features varchar(100) NOT NULL DEFAULT ''
+ble_services: featurestext varchar(100) NOT NULL DEFAULT ''
+
+
+ble_commands: ID int(10) unsigned NOT NULL auto_increment
+ble_commands: TITLE varchar(100) NOT NULL DEFAULT ''
+ble_commands: VALUE varchar(255) NOT NULL DEFAULT ''
+ble_commands: DEVICE_ID int(10) NOT NULL DEFAULT '0'
+ble_commands: LINKED_OBJECT varchar(100) NOT NULL DEFAULT ''
+ble_commands: LINKED_PROPERTY varchar(100) NOT NULL DEFAULT ''
+ble_commands: LINKED_METHOD varchar(100) NOT NULL DEFAULT '' 
+ble_commands: UPDATED datetime
+
+
 EOD;
 
 
@@ -324,6 +343,7 @@ EOD;
  
  function uninstall() {
 SQLExec('DROP TABLE IF EXISTS ble_devices');
+SQLExec('DROP TABLE IF EXISTS ble_services');
   parent::uninstall();
  }
 
