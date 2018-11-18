@@ -150,9 +150,9 @@ if ($this->view_mode=='clearall') {
 $file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
 //echo php_uname();
 //echo PHP_OS;
-
-//$debug = "Snanning run at ".gg('sysdate').' '.gg('timenow')."<br>\n";
-//file_put_contents($file, $debug);
+$debug = file_get_contents($file);
+$debug .= "Snanning run at ".gg('sysdate').' '.gg('timenow')."<br>\n";
+file_put_contents($file, $debug);
 
 
 
@@ -161,29 +161,37 @@ if (substr(php_uname(),0,5)=='Linux')  {
 //$cmd='nmap -sn 192.168.1.0/24';
 //$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
 $data = array();
-$cmd='sudo hciconfig hci0 down';
-shell_exec($cmd,$data);
-
-$debug = $cmd.":".$data."<br>\n";
-file_put_contents($file, $debug);
-
-
-sleep(1);
-$cmd='sudo hciconfig hci0 down';
-shell_exec($cmd,$data);
-$debug = $cmd.":".$data."<br>\n";
-file_put_contents($file, $debug);
-
-sleep(1);
 $cmd='sudo hciconfig hci0 reset';
-shell_exec($cmd,$data);
-$debug = $cmd.":".$data."<br>\n";
+$answ=shell_exec($cmd);
+
+$debug = file_get_contents($file);
+$debug.= $cmd.":".$answ."<br>\n";
+
+file_put_contents($file, $debug);
+
+
+sleep(1);
+$cmd='sudo hciconfig hci0 down';
+$answ=shell_exec($cmd);
+$debug = file_get_contents($file);
+$debug.= $cmd.":".$answ."<br>\n";
 file_put_contents($file, $debug);
 
 sleep(1);
-$cmd='sudo timeout -s INT 30s hcitool lescan | grep ":"';
-shell_exec($cmd,$data);
+$cmd='sudo hciconfig hci0 up';
+$answ=shell_exec($cmd);
+$debug = file_get_contents($file);
+$debug.= $cmd.":".$answ."<br>\n";
+file_put_contents($file, $debug);
 
+sleep(1);
+//$cmd='sudo timeout -s INT 30s hcitool lescan | grep ":"';
+//$answ=shell_exec($cmd,$data);
+
+
+exec('sudo timeout -s INT 30s hcitool lescan | grep ":"',$data);
+$debug .= file_get_contents($file);
+$debug.= $cmd.":".$answ."<br>\n";
 file_put_contents($file, $debug);
 
 
@@ -199,17 +207,17 @@ file_put_contents($file, $debug);
  
   			 	$vendor=$this->getvendor($mac);
 
-$debug ="Find ". $mac.":".$name.":".$vendor."<br>\n";
+$debug = file_get_contents($file);
+$debug.="find ". $mac.":".$name.":".$vendor."<br>\n";
 file_put_contents($file, $debug);
-   
 
 
  		if(!empty($mac)) {
-$cmd_rec = SQLSelectOne("SELECT * FROM ble_devices where MAC='$mac'");
-$cmd_rec['MAC']=$mac;
-$cmd_rec['IPADDR']=$ipadr;
-$cmd_rec['TITLE']=$name;
-$cmd_rec['VENDOR']=$vendor;
+		$cmd_rec = SQLSelectOne("SELECT * FROM ble_devices where MAC='$mac'");
+		$cmd_rec['MAC']=$mac;
+		$cmd_rec['IPADDR']=$ipadr;
+		$cmd_rec['TITLE']=$name;
+		$cmd_rec['VENDOR']=$vendor;
 
 if (!$cmd_rec['ID']) 
 {
@@ -251,9 +259,9 @@ SQLUpdate('ble_devices', $cmd_rec);
  }
 
 
- function searchdevices(&$mac) {
+ function searchdevices(&$out) {
 
-
+  require(DIR_MODULES.$this->name.'/search.inc.php');
  }
 
 
@@ -276,7 +284,7 @@ $this->searchdevices($out);
 $filename = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
 
 $a=shell_exec("tail -n 100 $filename");
-$a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
+///$a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
 $out['DEBUG']=$a;
 
 
@@ -320,7 +328,7 @@ ble_devices: ONLINE varchar(100) NOT NULL DEFAULT ''
 ble_devices: VENDOR varchar(100) NOT NULL DEFAULT ''
 ble_devices: TYPE varchar(100) NOT NULL DEFAULT ''
 ble_devices: SERVICES varchar(100) NOT NULL DEFAULT ''
-ble_devices: ENABLE int(1) NOT NULL DEFAULT ''
+ble_devices: ENABLE int(1) 
 
 ble_services: ID int(10) unsigned NOT NULL auto_increment
 ble_services: manufacturer varchar(100) NOT NULL DEFAULT ''
