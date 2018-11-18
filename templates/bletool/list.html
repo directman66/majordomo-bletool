@@ -1,0 +1,77 @@
+  <br/>
+<!-- results -->
+[#if RESULT#]
+
+<table  align=center class="table table-striped">
+<thead>
+<tr>
+
+<th>ID</th>
+<th>TITLE</th>  
+<th>TYPE</th>  
+<th>MAC</th>  
+<th>Vendor</th>  
+<th>Online</th>    
+</tr>
+</thead>
+<tbody>
+[#begin RESULT#]
+<tr style="height:52px" class="hover_btn2">
+ <td style="vertical-align:middle">
+   [#ID#]
+ </td>
+
+ <td style="vertical-align:middle">
+   [#TITLE#] 
+ </td>
+
+ <td style="vertical-align:middle">
+   [#TYPE#] </td>
+
+
+ <td style="vertical-align:middle">
+   <a href="?view_mode=wake&mac=[#MAC#]"  class="btn btn-default" title="Wake">
+   [#MAC#] </td>
+
+
+ <td style="vertical-align:middle">
+   [#VENDOR#] </td>
+
+
+ <td style="vertical-align:middle">
+	[#if ONLINE!=""#]
+		[#if ONLINE==1#]
+			<span class="label label-success" title="<#LANG_XIMI_APP_ONLINE#>">Online</span>
+		[#else#]
+			<span class="label label-warning" title="<#LANG_XIMI_APP_OFFLINE#>">Offline</span>
+		[#endif#]
+	[#else#]
+		&nbsp;
+	[#endif#]
+
+ </td>
+
+
+ 
+ <td style="vertical-align:middle" width="1%" nowrap>
+  <div style="width:120px">
+  [#if "<#ACTION#>"=="admin"#]
+   <a href="?view_mode=edit_devices&id=[#ID#]&tab=indata"  class="btn btn-default" title="Get services"><i class="glyphicon glyphicon-pencil"></i></a>
+   <a href="?view_mode=getservices&id=[#ID#]&tab=indata"  class="btn btn-default" title="Get services"><i class="glyphicon glyphicon-list-alt"></i></a>
+   <a href="?view_mode=getvalues&id=[#ID#]&tab=indata"  class="btn btn-default" title="Get data"><i class="glyphicon glyphicon-magnet"></i></a>
+   <a href="?view_mode=indata_del&id=[#ID#]&tab=indata" onClick="return confirm('Are you sure? Please confirm.')" class="btn btn-default" title="Delete"><i class="glyphicon glyphicon-remove"></i></a>
+  [#endif ACTION#]
+  </div>
+ </td>
+</tr>
+[#end RESULT#]
+</tbody>
+</table>
+
+<!-- / search results (list) -->
+<!-- paging -->
+</td>
+
+[#endif RESULT#]
+<!-- / results -->
+
