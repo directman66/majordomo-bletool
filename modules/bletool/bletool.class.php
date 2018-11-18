@@ -117,6 +117,11 @@ function run() {
    $this->delete($this->id);
 }	
 
+ if ($this->view_mode=='getservices') {
+    $this->getservices($this->id);
+}	
+
+
 
 
 
@@ -141,6 +146,8 @@ if ($this->view_mode=='clearall') {
 }
 
  function discover() {
+
+$file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
 //echo php_uname();
 //echo PHP_OS;
 
@@ -149,22 +156,33 @@ if (substr(php_uname(),0,5)=='Linux')  {
 //$cmd='nmap -sn 192.168.1.0/24';
 //$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
 $data = array();
-shell_exec('sudo hciconfig hci0 down');
-shell_exec('sudo hciconfig hci0 reset');
-shell_exec('sudo hciconfig hci0 up');
-//$out = shell_exec('sudo timeout 5 hcitool lescan');
-//sleep(30);
-//shell_exec('sudo hciconfig hci0 reset');
-//shell_exec('sudo hciconfig hci0 up');
+$cmd='sudo hciconfig hci0 down';
+shell_exec($cmd,$data);
 
-//exec('sudo hcitool scan | grep ":"', $out);
-exec('sudo timeout -s INT 30s hcitool lescan | grep ":"', $data);
-//echo $out;
-//sg('test.hci', print_r($out));
+$debug = $cmd.":".$data."<br>\n";
+file_put_contents($file, $debug);
 
-//$cmd='arp -a';
-//$answ=shell_exec($cmd);
-//echo $answ;
+
+sleep(1);
+$cmd='sudo hciconfig hci0 down';
+shell_exec($cmd,$data);
+$debug = $cmd.":".$data."<br>\n";
+file_put_contents($file, $debug);
+
+sleep(1);
+$cmd='sudo hciconfig hci0 reset';
+shell_exec($cmd,$data);
+$debug = $cmd.":".$data."<br>\n";
+file_put_contents($file, $debug);
+
+sleep(1);
+$cmd='sudo timeout -s INT 30s hcitool lescan | grep ":"';
+shell_exec($cmd,$data);
+
+file_put_contents($file, $debug);
+
+
+
 
 //$data2 =preg_split('/\\r\\n?|\\n/',$out);
 
@@ -176,10 +194,12 @@ exec('sudo timeout -s INT 30s hcitool lescan | grep ":"', $data);
  
   			 	$vendor=$this->getvendor($mac);
 
-//echo  $mac."---".$name;
+$debug ="Find " $mac.":".$name.":".$vendor."<br>\n";
+file_put_contents($file, $debug);
    
 
-			if(!empty($mac)) {
+
+ 		if(!empty($mac)) {
 $cmd_rec = SQLSelectOne("SELECT * FROM ble_devices where MAC='$mac'");
 $cmd_rec['MAC']=$mac;
 $cmd_rec['IPADDR']=$ipadr;
@@ -232,25 +252,9 @@ SQLUpdate('ble_devices', $cmd_rec);
  }
 
 
- function searchdevices(&$out) {
+ function searchdevices(&$mac) {
 
 
-$mhdevices=SQLSelect("SELECT * FROM ble_devices");
-$total = count($mhdevices);
-for ($i = 0; $i < $total; $i++)
-{ 
-$ip=$mhdevices[$i]['IPADDR'];
-$lastping=$mhdevices[$i]['LASTPING'];
-//echo time()-$lastping;
-if (time()-$lastping>300) {
-$online=ping(processTitle($ip));
-    if ($online) 
-{SQLexec("update ble_devices set ONLINE='1', LASTPING=".time()." where IPADDR='$ip'");} 
-else 
-{SQLexec("update ble_devices set ONLINE='0', LASTPING=".time()." where IPADDR='$ip'");}
-}}
-
-  require(DIR_MODULES.$this->name.'/search.inc.php');
  }
 
 
@@ -270,14 +274,14 @@ function admin(&$out) {
 
 $this->searchdevices($out);
 
+$filename = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
+
+$a=shell_exec("tail -n 100 $filename");
+$a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
+$out['DEBUG']=$a;
+
+
 }
-
-
-
-
-
-
-
 
 
 
@@ -319,7 +323,10 @@ ble_devices: TYPE varchar(100) NOT NULL DEFAULT ''
 ble_devices: SERVICES varchar(100) NOT NULL DEFAULT ''
 
 ble_services: ID int(10) unsigned NOT NULL auto_increment
-le_services: handledec varchar(100) NOT NULL DEFAULT ''
+ble_services: manufacturer varchar(100) NOT NULL DEFAULT ''
+ble_services: lpmvers varchar(100) NOT NULL DEFAULT ''
+ble_services: lpmsubvers varchar(100) NOT NULL DEFAULT ''
+ble_services: handledec varchar(100) NOT NULL DEFAULT ''
 ble_services: handlehex varchar(100) NOT NULL DEFAULT ''
 ble_services: features varchar(100) NOT NULL DEFAULT ''
 ble_services: featurestext varchar(100) NOT NULL DEFAULT ''
@@ -344,12 +351,49 @@ EOD;
  function uninstall() {
 SQLExec('DROP TABLE IF EXISTS ble_devices');
 SQLExec('DROP TABLE IF EXISTS ble_services');
+SQLExec('DROP TABLE IF EXISTS ble_commands');
+unlink(ROOT."cms/cached/bleutils");
+
   parent::uninstall();
  }
 
 
 
 
+
+ function getservices($mac) {
+
+$cmd_rec = SQLSelectOne("SELECT * FROM ble_devices where MAC='$mac'");
+$id=$cmd_rec['ID'];
+
+
+
+$data = array();
+shell_exec('sudo hciconfig hci0 down');
+shell_exec('sudo hciconfig hci0 reset');
+shell_exec('sudo hciconfig hci0 up');
+//$out = shell_exec('sudo timeout 5 hcitool lescan');
+//sleep(30);
+//shell_exec('sudo hciconfig hci0 reset');
+//shell_exec('sudo hciconfig hci0 up');
+
+//exec('sudo hcitool scan | grep ":"', $out);
+//exec('sudo timeout -s INT 30s hcitool lescan | grep ":"', $data);
+
+exec('sudo hcitool leinfo '.$mac.'  | grep ":"', $data);
+echo $data;
+
+$cmd_rec = SQLSelectOne("SELECT * FROM ble_services where ID='$id'");
+
+
+
+//return print_r($data);
+
+
+
+
+
+}
 
 
 
