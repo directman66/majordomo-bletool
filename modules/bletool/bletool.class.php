@@ -482,7 +482,7 @@ SQLUpdate('ble_services', $cmd_rec2);
 $cmd_rec = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'");
 $id=$cmd_rec['ID'];
 $mac=$cmd_rec['MAC'];
-$type=$cmd_rec['MAC'];
+$type=$cmd_rec['TYPE'];
 
 
 
@@ -492,7 +492,7 @@ $file = ROOT.'cms/cached/bletools'; // полный путь к нужному �
 //echo php_uname();
 //echo PHP_OS;
 $debug = file_get_contents($file);
-$debug .= "get info about $mac run at ".gg('sysdate').' '.gg('timenow')."<br>\n";
+$debug .= "get values from $mac $type run at ".gg('sysdate').' '.gg('timenow')."<br>\n";
 file_put_contents($file, $debug);
 
 
@@ -506,16 +506,17 @@ $this->resethci();
 switch ($type) {
    case "eQ-3-radiator-thermostat":
 
+	$cmd="sudo gatttool -i hci0 -b $mac -a 0x0411 -n 00 --char-write-req --listen";
 
-	$cmd="sudo hcitool leinfo $mac";
-//echo $cmd;
+//sudo gatttool -i hci0 -b 00:1A:22:06:A2:D3 -a 0x0411 -n 00 --char-write-req --listen
+echo $cmd."<br>";
 
 	$answ=shell_exec($cmd);
 	$debug = file_get_contents($file);
 	$debug.= $cmd.":".$answ."<br>\n";
 	file_put_contents($file, $debug);
 
-
+echo $answ;
 
 	$data2 =preg_split('/\\r\\n?|\\n/',$answ);
 	//print_r($data2);
@@ -533,14 +534,17 @@ switch ($type) {
 	$cmd_rec2['value']=trim($val);
 	$cmd_rec2['parametr']=trim($par);
 
+print_r($cmd_rec2);
+
+
 	if (($cmd_rec2['value'])&&($cmd_rec2['parametr']))
 	{
 	if (!$cmd_rec2['ID']) 
 	{
 	//$cmd_rec['ONLINE']=$onlinest;
-	SQLInsert('ble_commands', $cmd_rec2);
+//	SQLInsert('ble_commands', $cmd_rec2);
 	} else {
-	SQLUpdate('ble_commands', $cmd_rec2);
+//	SQLUpdate('ble_commands', $cmd_rec2);
 	}
 	}}
 break;
