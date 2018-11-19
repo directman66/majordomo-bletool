@@ -1,4 +1,3 @@
-qwe
 <link rel="stylesheet" href="../templates/xiaomimiio/css/bootstrap-select.min.css">
 
 <form action="?" method="post" enctype="multipart/form-data" name="frmEdit" class="form-horizontal">
@@ -11,22 +10,20 @@ qwe
 	[#endif ERR#]
 <table width="100%"><tr><td>	
 	<fieldset>
-		[#if ID=""#]
-		<legend><#LANG_ADD#> <#LANG_DEVICE#></legend>
-		[#endif ID#]
 
-		[#if ID!=""#]
+
+
 		<div class="form-group">
-			<label class="col-lg-3 control-label"[#if ERR_ID#] style="color:red;font-weight:bold"[#endif#]>
+			<label class="col-lg-3 control-label">
 			 ID:
 			</label>
 			<div class="col-lg-4">[#ID#]</div>
 		</div>
-		[#endif#]
+
 
 
 		<div class="form-group">
-			<label class="col-lg-3 control-label"[#if ERR_TITLE#] style="color:red;font-weight:bold"[#endif#]>
+			<label class="col-lg-3 control-label">
 				<#LANG_TITLE#> (*):
 			</label>
 			<div class="col-lg-4"><input type="text" class="form-control" name="title" value="[#TITLE#]" id="title"></div>
@@ -34,66 +31,63 @@ qwe
 
 
 
-
-		[#if iddev!=""#]
 		<div class="form-group">
 			<label class="col-lg-3 control-label">
-			DEVICE_ID:
+			TYPE:
 			</label>
-			<div class="col-lg-4">[#iddev#]</div>
-		</div>
-		[#endif#]
+			<div class="col-lg-4"><select name="type" class="form-control" style="width: 260px;" align="right">
+<option value="[#TYPE#]"[#if SELECTED#] selected[#endif#]>eQ-3-radiator-thermostat
+<option value="[#TYPE#]"[#if SELECTED#] selected[#endif#]>mi-flora-plant
+<option value="[#TYPE#]"[#if SELECTED#] selected[#endif#]>mi-band-1s
 
-		[#if battery!=""#]
+ </select>
+
+</div>
+		</div>
+
+
+
 		<div class="form-group">
-			<label class="col-lg-3 control-label"[#if ERR_battery#] style="color:red;font-weight:bold"[#endif#]>
-			 BATTERY:
+			<label class="col-lg-3 control-label">
+			MAC:
 			</label>
-			<div class="col-lg-4">[#battery#]</div>
+			<div class="col-lg-4">[#MAC#]</div>
 		</div>
-		[#endif#]
 
-		[#if channel!=""#]
+
+
+
 		<div class="form-group">
-			<label class="col-lg-3 control-label"[#if ERR_channel#] style="color:red;font-weight:bold"[#endif#]>
-			 CHANNEL:
+			<label class="col-lg-3 control-label">
+			VENDOR:
 			</label>
-			<div class="col-lg-4">[#channel#]</div>
+			<div class="col-lg-4">[#VENDOR#]</div>
 		</div>
-		[#endif#]
 
 
-		[#if temperature_C!=""#]
+
 		<div class="form-group">
-			<label class="col-lg-3 control-label"[#if ERR_temperature_C#] style="color:red;font-weight:bold"[#endif#]>
-			 temperature_C:
+			<label class="col-lg-3 control-label">
+			TYPE:
 			</label>
-			<div class="col-lg-4">[#temperature_C#]</div>
+			<div class="col-lg-4">[#TYPE#]</div>
 		</div>
-		[#endif#]
 
-		[#if humidity!=""#]
+
+
+
+
+
+
+
+
 		<div class="form-group">
-			<label class="col-lg-3 control-label"[#if ERR_humidity#] style="color:red;font-weight:bold"[#endif#]>
-			 humidity:
+			<label class="col-lg-3 control-label">
+			ENABLE:
 			</label>
-			<div class="col-lg-4">[#humidity#]</div>
+			<div class="col-lg-4">[#ENABLE#]</div>
 		</div>
-		[#endif#]
 
-
-		[#if json!=""#]
-		<div class="form-group">
-			<label class="col-lg-3 control-label"[#if ERR_json#] style="color:red;font-weight:bold"[#endif#]>
-			 json:
-			</label>
-			<div class="col-lg-4">[#json#]</div>
-		</div>
-		[#endif#]
-
-		
-
-		
 
 
 		
@@ -117,6 +111,6 @@ qwe
 </form>
 
 </td><td>
-<img src="../img/modules/[#TITLE#].png" width="400">
+<img src="../img/modules/[#TYPE#].png" width="400">
 </td></tr></table>
 
