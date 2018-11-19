@@ -207,6 +207,7 @@ file_put_contents($file, $debug);
 		$cmd_rec['IPADDR']=$ipadr;
 		$cmd_rec['TITLE']=$name;
 		$cmd_rec['VENDOR']=$vendor;
+		$cmd_rec['ADDED']=gg('sysdate').' '.gg('timenow')
 
 if (!$cmd_rec['ID']) 
 {
@@ -255,8 +256,8 @@ SQLUpdate('ble_devices', $cmd_rec);
 
    function edit_devices(&$out, $id)
    {
-//      require(DIR_MODULES . $this->name . '/devices_edit.inc.php');
-      require(DIR_MODULES . $this->name . '/deviceedit.php');
+      require(DIR_MODULES . $this->name . '/devices_edit.inc.php');
+//      require(DIR_MODULES . $this->name . '/deviceedit.php');
 
 
 
@@ -333,6 +334,7 @@ ble_devices: ONLINE varchar(100) NOT NULL DEFAULT ''
 ble_devices: VENDOR varchar(100) NOT NULL DEFAULT ''
 ble_devices: TYPE varchar(100) NOT NULL DEFAULT ''
 ble_devices: SERVICES varchar(100) NOT NULL DEFAULT ''
+ble_devices: ADDED varchar(100) NOT NULL DEFAULT ''
 ble_devices: ENABLE int(1) 
 
 ble_services: ID int(10) unsigned NOT NULL auto_increment
