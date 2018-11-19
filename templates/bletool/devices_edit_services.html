@@ -1,0 +1,54 @@
+<!-- Table 'miio_devices' edit -->
+<form action="?" method="post" enctype="multipart/form-data" name="frmEdit" class="form-horizontal">
+[#if OK#]
+<div class="alert alert-success"><#LANG_DATA_SAVED#></div>
+[#endif OK#]
+[#if ERR#]
+<div class="alert alert-error"><#LANG_FILLOUT_REQURED#></div>
+[#endif ERR#]
+
+<h2>[#TITLE#]</h2>
+<fieldset>
+<div class="form-group">
+<div>
+<table class="table table-stripped">
+ <tr>
+  <td><#LANG_TITLE#></td>
+  <td><#LANG_VALUE#></td>
+  <td valign="top"><#LANG_UPDATED#></td>
+  <td>&nbsp;</td>
+ </tr>
+ [#begin PROPERTIES#]
+ <tr>
+  <td valign="top">[#parametr#]</td>
+  <!--<td valign="top">[#VALUE#]</td>-->
+  <td valign="top"><div style="width:180px"><div style="word-break:break-all">[#value#]</div></div></td>
+  <td valign="top"><div style="width:180px"><div style="word-break:break-all">[#updated#]</div></div></td>
+
+
+  <td><a href="?id=<#ID#>&tab=<#TAB#>&view_mode=<#VIEW_MODE#>&delete_id=[#ID#]" onClick="return confirm('<#LANG_ARE_YOU_SURE#>');" class="btn btn-default"><i class="glyphicon glyphicon-remove"></i></td>
+ </tr>
+ [#end PROPERTIES#]
+</table> 
+</div>
+</div>
+<div class="form-group">
+        <div class="col-lg-offset-3 col-lg-4">
+
+ <a href="?view_mode=getservices&id=[#ID#]&tab=indata" class="btn btn-primary"><#LANG_UPDATE#></a>
+ <a href="?data_source=<#DATA_SOURCE#>" class="btn btn-default"><#LANG_STRING_BACK#></a>
+<input type="hidden" name="id" value="<#ID#>">
+<input type="hidden" name="view_mode" value="<#VIEW_MODE#>">
+<input type="hidden" name="edit_mode" value="<#EDIT_MODE#>">
+<input type="hidden" name="mode" value="update">
+<input type="hidden" name="data_source" value="<#DATA_SOURCE#>">
+<input type="hidden" name="tab" value="<#TAB#>">
+        </div>
+</div>
+</fieldset>
+</form>
+<!-- dataset2 (module) -->
+<div class="form-group">
+</div>
+
+ 
