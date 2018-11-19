@@ -35,12 +35,18 @@
 			<label class="col-lg-3 control-label">
 			TYPE:
 			</label>
-			<div class="col-lg-4"><select name="type" class="form-control" style="width: 260px;" align="right">
-<option value="[#TYPE#]"[#if SELECTED#] selected[#endif#]>eQ-3-radiator-thermostat
-<option value="[#TYPE#]"[#if SELECTED#] selected[#endif#]>mi-flora-plant
-<option value="[#TYPE#]"[#if SELECTED#] selected[#endif#]>mi-band-1s
+			<div class="col-lg-4">
+<select name="type" class="form-control" style="width: 260px;" align="right">
+<option[#if TYPE="eQ-3-radiator-thermostat"#] selected[#endif#]>eQ-3-radiator-thermostat
+<option[#if TYPE="mi-flora-plant"#] selected[#endif#]>mi-flora-plant
+<option[#if TYPE="mi-band-1s"#] selected[#endif#]>mi-band-1s
+<option[#if TYPE="mi-band-2"#] selected[#endif#]>mi-band-2
+<option[#if TYPE="ble-label"#] selected[#endif#]>ble-label
+<option[#if TYPE="mi-kettle"#] selected[#endif#]>mi-kettle
+<option[#if TYPE="amazfit-bip"#] selected[#endif#]>amazfit-bip
+<option[#if TYPE="amazfit-stratos"#] selected[#endif#]>amazfit-stratos
 
- </select>
+</select>
 
 </div>
 		</div>
@@ -70,7 +76,7 @@
 			<label class="col-lg-3 control-label">
 			TYPE:
 			</label>
-			<div class="col-lg-4">[#TYPE#]</div>
+			<div class="col-lg-4"><input type="text" class="form-control" name="type2" value="[#TYPE#]" id="title"></div>
 		</div>
 
 
