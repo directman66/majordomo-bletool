@@ -146,9 +146,9 @@ if ($this->view_mode=='clearall') {
 
 }
 
-         if ($this->view_mode == 'edit_devices') {
-            $this->edit_devices($out, $this->id);
-         }
+      if ($this->view_mode == 'edit_devices') {
+           $this->edit_devices($out, $this->id);
+        }
 
 
 
@@ -249,9 +249,20 @@ SQLUpdate('ble_devices', $cmd_rec);
 
 
  function searchdevices(&$out) {
-
   require(DIR_MODULES.$this->name.'/search.inc.php');
+//print_r( $out);
  }
+
+   function edit_devices(&$out, $id)
+   {
+//      require(DIR_MODULES . $this->name . '/devices_edit.inc.php');
+      require(DIR_MODULES . $this->name . '/deviceedit.php');
+
+
+
+//print_r( $out);
+   }
+
 
 
 
@@ -263,11 +274,15 @@ SQLUpdate('ble_devices', $cmd_rec);
 * @access public
 */
 function admin(&$out) {
- if ($this->view_mode=='mac') {
-   global $mac;
+ if ($this->view_mode=='edit_devices') {
+$this->edit_devices($out, $this->id);
+//$this->edit_devices($out);
+
 //$res=$this->wake($mac);
 }
 
+//echo $this->view_mode;
+ if ($this->view_mode=='') {
 $this->searchdevices($out);
 
 $filename = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
@@ -276,6 +291,7 @@ $a=shell_exec("tail -n 100 $filename");
 ///$a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
 $out['DEBUG']=$a;
 
+}
 
 }
 
@@ -364,10 +380,6 @@ unlink(ROOT."cms/cached/bleutils");
 
 
 
-   function edit_devices(&$out, $id)
-   {
-      require(DIR_MODULES . $this->name . '/devices_edit.inc.php');
-   }
 
 
 
@@ -526,7 +538,7 @@ switch ($type) {
 	}
 	}}
 break;
-   case "mi flora plant":
+   case "mi-flora-plant":
 
 
 	$cmd="sudo hcitool leinfo $mac";
