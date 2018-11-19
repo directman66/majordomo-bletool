@@ -207,7 +207,7 @@ file_put_contents($file, $debug);
 		$cmd_rec['IPADDR']=$ipadr;
 		$cmd_rec['TITLE']=$name;
 		$cmd_rec['VENDOR']=$vendor;
-		$cmd_rec['ADDED']=gg('sysdate').' '.gg('timenow')
+		$cmd_rec['ADDED']=gg('sysdate').' '.gg('timenow');
 
 if (!$cmd_rec['ID']) 
 {
