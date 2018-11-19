@@ -227,7 +227,9 @@ echo "linux system only";
 
 
  function clearall() {
-$cmd_rec = SQLSelect("delete  FROM ble_devices  ");
+$cmd_rec = SQLSelect("delete  FROM ble_devices");
+$cmd_rec = SQLSelect("delete  FROM ble_services");
+$cmd_rec = SQLSelect("delete  FROM ble_commands");
 }
 
  function pingall() {
@@ -349,6 +351,7 @@ ble_services: featurestext varchar(100) NOT NULL DEFAULT ''
 ble_services: debug varchar(100) NOT NULL DEFAULT ''
 ble_services: parametr varchar(100) NOT NULL DEFAULT ''
 ble_services: value varchar(100) NOT NULL DEFAULT ''
+ble_services: updated varchar(100) NOT NULL DEFAULT ''
 
 
 
@@ -438,6 +441,7 @@ $cmd_rec2['debug']=$answ;
 $cmd_rec2['IDDEV']=$id;
 $cmd_rec2['value']=trim($val);
 $cmd_rec2['parametr']=trim($par);
+$cmd_rec2['updated']=gg('sysdate').' '.gg('timenow');
 
 if (($cmd_rec2['value'])&&($cmd_rec2['parametr']))
 {
@@ -568,6 +572,7 @@ break;
 	$cmd_rec2['IDDEV']=$id;
 	$cmd_rec2['value']=trim($val);
 	$cmd_rec2['parametr']=trim($par);
+
 
 	if (($cmd_rec2['value'])&&($cmd_rec2['parametr']))
 	{
