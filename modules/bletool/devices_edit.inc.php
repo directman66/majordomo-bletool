@@ -2,16 +2,35 @@
 /*
 * @version 0.1 (wizard)
 */
+//echo $this->mode;
+// echo $this->tab."     ".$id;
   if ($this->owner->name=='panel') {
    $out['CONTROLPANEL']=1;
   }
-  $table_name='ble_devices';
-  $rec=SQLSelectOne("SELECT * FROM $table_name WHERE ID='$id'");
-  if ($this->mode=='update') {
+
+//echo $this->tab;
+$table_name='ble_devices';
+
+//echo $this->mode;
+if (($this->tab=='infoedit')&&($this->mode=='')) {
+
+
+$sql="SELECT * FROM $table_name WHERE ID='$id'";
+$rec=SQLSelectOne($sql);
+$out['ID']=$id;
+$out['VENDOR']=$rec['VENDOR'];
+$out['TITLE']=$rec['TITLE'];
+$out['MAC']=$rec['MAC'];
+}
+
+ 
+if (($this->tab=='infoedit')&&($this->mode=='update')) {
+
    $ok=1;
   // step: default
-echo $this->tab;
-  if ($this->tab=='info') {
+$sql="SELECT * FROM ble_devices WHERE ID='$id'";
+$rec=SQLSelectOne($sql);
+
   //updating '<%LANG_TITLE%>' (varchar, required)
    global $title;
    $rec['TITLE']=$title;
@@ -19,13 +38,12 @@ echo $this->tab;
     $out['ERR_TITLE']=1;
     $ok=0;
    }
-   global $ip;
-   $rec['IP']=$ip;
-   if ($rec['IP']=='') {
-    $out['ERR_IP']=1;
+   global $type;
+   $rec['TYPE']=$type;
+   if ($rec['TYPE']=='') {
+    $out['ERR_TYPE']=1;
     $ok=0;
    }
-}
 
     if ($ok=1)
     SQLUpdate('ble_devices', $rec);
@@ -36,15 +54,20 @@ echo $this->tab;
   }
   //UPDATING RECORD
   // step: default
-  if ($this->tab=='') {
-  }
   if ($this->tab=='data') {
    //dataset2
    $new_id=0;
+
+
    global $delete_id;
    if ($delete_id) {
     SQLExec("DELETE FROM ble_commands WHERE ID='".(int)$delete_id."'");
    }
+
+
+
+
+
    $properties=SQLSelect("SELECT * FROM ble_commands WHERE DEVICE_ID='".$rec['ID']."' ORDER BY ID");
    $total=count($properties);
    for($i=0;$i<$total;$i++) {
