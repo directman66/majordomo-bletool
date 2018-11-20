@@ -121,6 +121,11 @@ function run() {
     $this->getservices($this->id);
 }	
 
+ if ($this->view_mode=='gethandles') {
+    $this->gethandles($this->id);
+}	
+
+
 
  if ($this->view_mode=='getvalues') {
     $this->getvalues($this->id);
@@ -336,7 +341,7 @@ ble_devices: ONLINE varchar(100) NOT NULL DEFAULT ''
 ble_devices: VENDOR varchar(100) NOT NULL DEFAULT ''
 ble_devices: TYPE varchar(100) NOT NULL DEFAULT ''
 ble_devices: SERVICES varchar(100) NOT NULL DEFAULT ''
-ble_devices: ADDED varchar(100) NOT NULL DEFAULT ''
+ble_devices: ADDED datetime
 ble_devices: ENABLE int(1) 
 
 ble_services: ID int(10) unsigned NOT NULL auto_increment
@@ -351,9 +356,15 @@ ble_services: featurestext varchar(100) NOT NULL DEFAULT ''
 ble_services: debug varchar(100) NOT NULL DEFAULT ''
 ble_services: parametr varchar(100) NOT NULL DEFAULT ''
 ble_services: value varchar(100) NOT NULL DEFAULT ''
-ble_services: updated varchar(100) NOT NULL DEFAULT ''
+ble_services: updated datetime
 
-
+ble_handles: ID int(10) unsigned NOT NULL auto_increment
+ble_handles: IDDEV int(10) 
+ble_handles: handle varchar(100) NOT NULL DEFAULT ''
+ble_handles: char_prop varchar(100) NOT NULL DEFAULT ''
+ble_handles: char_val varchar(100) NOT NULL DEFAULT ''
+ble_handles: uuid varchar(100) NOT NULL DEFAULT ''
+ble_handles: updated datetime
 
 
 
@@ -416,7 +427,9 @@ $data = array();
 //$answ=shell_exec($cmd,$data);
 
 
-$cmd="sudo hcitool leinfo $mac";
+
+$cmd="sudo timeout -s INT 15s   hcitool leinfo $mac";
+//$cmd="sudo hcitool leinfo $mac";
 //echo $cmd;
 
 $answ=shell_exec($cmd);
@@ -441,7 +454,111 @@ $cmd_rec2['debug']=$answ;
 $cmd_rec2['IDDEV']=$id;
 $cmd_rec2['value']=trim($val);
 $cmd_rec2['parametr']=trim($par);
-$cmd_rec2['updated']=gg('sysdate').' '.gg('timenow');
+
+$cmd_rec2['updated']=date('Y-m-d H:i:s');
+
+if (($cmd_rec2['value'])&&($cmd_rec2['parametr']))
+{
+if (!$cmd_rec2['ID']) 
+{
+//$cmd_rec['ONLINE']=$onlinest;
+SQLInsert('ble_services', $cmd_rec2);
+} else {
+SQLUpdate('ble_services', $cmd_rec2);
+}
+}
+
+
+
+
+
+}
+
+
+
+
+
+
+//return print_r($data);
+
+
+
+
+
+}
+
+///////////////////////////////
+///////////////////////
+
+
+ function gethandles($id) {
+
+$cmd_rec = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'");
+$id=$cmd_rec['ID'];
+$mac=$cmd_rec['MAC'];
+
+
+$file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
+//echo php_uname();
+//echo PHP_OS;
+$debug = file_get_contents($file);
+$debug .= "get handles from  $mac run at ".gg('sysdate').' '.gg('timenow')."<br>\n";
+
+file_put_contents($file, $debug);
+
+
+//echo "это линус";
+//$cmd='nmap -sn 192.168.1.0/24';
+//$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
+
+$this->resethci();
+
+$data = array();
+
+
+//$cmd='sudo timeout -s INT 30s hcitool lescan | grep ":"';
+//$answ=shell_exec($cmd,$data);
+
+
+$cmd="gatttool --device=$max --characteristics";
+
+//$cmd="sudo timeout -s INT 15s   hcitool leinfo $mac";
+//$cmd="sudo hcitool leinfo $mac";
+//echo $cmd;
+
+$answ=shell_exec($cmd);
+$debug = file_get_contents($file);
+$debug.= $cmd.":".$answ."<br>\n";
+file_put_contents($file, $debug);
+
+
+
+$data2 =preg_split('/\\r\\n?|\\n/',$answ);
+//print_r($data2);
+foreach ($data2 as $key){
+
+$handle=trim(explode("=",explode(",",$key)[0])[1]);
+$char_prop=trim(explode(explode(",",$key)[1])[1]);
+$char_val=trim(explode(explode(",",$key)[2])[1]);
+$uuid=trim(explode(explode(",",$key)[3])[1]);
+
+
+$sql="SELECT * FROM ble_handles where IDDEV='$id' and parametr='".trim($handle)."'";
+//echo $sql."<br>";
+$cmd_rec2 = SQLSelectOne($sql);
+
+$cmd_rec2['IDDEV']=$id;
+$cmd_rec2['handle']=$handle;
+$cmd_rec2['char_prop']=$char_prop;
+$cmd_rec2['char_val']=$char_val;
+$cmd_rec2['uuid']=$uuid;
+
+
+
+$cmd_rec2['updated']=date('Y-m-d H:i:s');
+
+
+
 
 if (($cmd_rec2['value'])&&($cmd_rec2['parametr']))
 {
@@ -475,6 +592,8 @@ SQLUpdate('ble_services', $cmd_rec2);
 
 
 
+////////////////////////
+
 
 
  function getvalues($id) {
@@ -504,12 +623,18 @@ $data = array();
 $this->resethci();
 
 switch ($type) {
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
    case "eQ-3-radiator-thermostat":
 
-	$cmd="sudo gatttool -i hci0 -b $mac -a 0x0411 -n 00 --char-write-req --listen";
+	$cmd="sudo gatttool -i hci0 -b $mac -a 0x0411 -n 00 --char-write-req --char-read";
+//	$cmd=" sudo timeout -s INT 30s  $mac -i hci0 -b 00:1A:22:06:A2:D3 -a 0x0411 -n 00 --char-write-req --listen";
+
 
 //sudo gatttool -i hci0 -b 00:1A:22:06:A2:D3 -a 0x0411 -n 00 --char-write-req --listen
-echo $cmd."<br>";
+//echo $cmd."<br>";
 
 	$answ=shell_exec($cmd);
 	$debug = file_get_contents($file);
@@ -517,69 +642,21 @@ echo $cmd."<br>";
 	file_put_contents($file, $debug);
 
 echo $answ;
+$val=explode(':',$answ);
 
-	$data2 =preg_split('/\\r\\n?|\\n/',$answ);
-	//print_r($data2);
-	foreach ($data2 as $key){
-	$par=explode(":",$key)[0];
-	$val=explode(":",$key)[1];
 
-	$sql="SELECT * FROM ble_commands where IDDEV='$id' and parametr='".trim($par)."'";
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='debug'";
 	//echo $sql."<br>";
 	$cmd_rec2 = SQLSelectOne($sql);
-	$cmd_rec2['debug']=$answ;
+	$cmd_rec2['TITLE']='debug';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=trim($val[1]);
+//	$cmd_rec2['UPDATED']=gg('sysdate').' '.gg('timenow');
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
 	//if (array_key_exists($key,$cmd_rec2)) $cmd_rec2[$key]=$val;
-	$cmd_rec2['IDDEV']=$id;
-	$cmd_rec2['value']=trim($val);
-	$cmd_rec2['parametr']=trim($par);
-
-print_r($cmd_rec2);
 
 
-	if (($cmd_rec2['value'])&&($cmd_rec2['parametr']))
-	{
-	if (!$cmd_rec2['ID']) 
-	{
-	//$cmd_rec['ONLINE']=$onlinest;
-//	SQLInsert('ble_commands', $cmd_rec2);
-	} else {
-//	SQLUpdate('ble_commands', $cmd_rec2);
-	}
-	}}
-break;
-   case "mi-flora-plant":
-
-
-	$cmd="sudo hcitool leinfo $mac";
-//echo $cmd;
-
-	$answ=shell_exec($cmd);
-	$debug = file_get_contents($file);
-	$debug.= $cmd.":".$answ."<br>\n";
-	file_put_contents($file, $debug);
-
-
-
-	$data2 =preg_split('/\\r\\n?|\\n/',$answ);
-	//print_r($data2);
-	foreach ($data2 as $key){
-	$par=explode(":",$key)[0];
-	$val=explode(":",$key)[1];
-
-	$sql="SELECT * FROM ble_commands where IDDEV='$id' and parametr='".trim($par)."'";
-	//echo $sql."<br>";
-	$cmd_rec2 = SQLSelectOne($sql);
-	$cmd_rec2['debug']=$answ;
-
-	//if (array_key_exists($key,$cmd_rec2)) $cmd_rec2[$key]=$val;
-	$cmd_rec2['IDDEV']=$id;
-	$cmd_rec2['value']=trim($val);
-	$cmd_rec2['parametr']=trim($par);
-
-
-	if (($cmd_rec2['value'])&&($cmd_rec2['parametr']))
-	{
 	if (!$cmd_rec2['ID']) 
 	{
 	//$cmd_rec['ONLINE']=$onlinest;
@@ -587,7 +664,144 @@ break;
 	} else {
 	SQLUpdate('ble_commands', $cmd_rec2);
 	}
-	}}
+
+$bytes=explode(" ",trim($val[1]));
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='mode'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='mode';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=trim($bytes[1]);
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='serialnumber'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='serialnumber';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=trim(hex2bin($bytes[4]).hex2bin($bytes[5]).hex2bin($bytes[6]).hex2bin($bytes[7]).hex2bin($bytes[8]).hex2bin($bytes[9]).hex2bin($bytes[10]).hex2bin($bytes[11]).hex2bin($bytes[12]).hex2bin($bytes[13]));
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+
+
+
+//	$data2 =preg_split('/\\r\\n?|\\n/',$answ);
+	//print_r($data2);
+//	foreach ($data2 as $key){
+//	$par=explode(":",$key)[0];
+//	$val=explode(":",$key)[1];
+
+//	$sql="SELECT * FROM ble_commands where IDDEV='$id' and parametr='".trim($par)."'";
+	//echo $sql."<br>";
+//	$cmd_rec2 = SQLSelectOne($sql);
+//	$cmd_rec2['debug']=$answ;
+
+	//if (array_key_exists($key,$cmd_rec2)) $cmd_rec2[$key]=$val;
+//	$cmd_rec2['IDDEV']=$id;
+//	$cmd_rec2['value']=trim($val);
+//	$cmd_rec2['parametr']=trim($par);
+
+//print_r($cmd_rec2);
+
+
+//	if (($cmd_rec2['value'])&&($cmd_rec2['parametr']))
+//	{
+//	if (!$cmd_rec2['ID']) 
+//	{
+	//$cmd_rec['ONLINE']=$onlinest;
+//	SQLInsert('ble_commands', $cmd_rec2);
+//	} else {
+//	SQLUpdate('ble_commands', $cmd_rec2);
+//	}
+//	}}
+break;
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+   case "mi-flora-plant":
+
+//firmware version + battery level
+$answ=$this->gethandlevalue($id,'0x038');
+
+$bytes=explode(" ",$answ);
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='battery'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='battery';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=hexdec($bytes[1]);
+	//$cmd_rec2['VALUE']=$answ;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='firmware'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='firmware';
+	$cmd_rec2['DEVICE_ID']=$id;
+//	$cmd_rec2['VALUE']=hex2bin($bytes[2].$bytes[3].$bytes[4].$bytes[5].$bytes[6]);
+	$cmd_rec2['VALUE']=hex2bin($bytes[3].$bytes[4].$bytes[5].$bytes[6].$bytes[7]);
+//$cmd_rec2['VALUE']=$answ;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+
+
+//Datenabruf (Feuchte, Temperatur, Licht, Leitfähigkeit)
+$answ=$this->gethandlevalue($id,'0x035');
+
+$bytes=explode(" ",$answ);
+
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='temp'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='temp';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=trim($bytes[0]." ".$bytes[1]);
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+
+
+//	}}
 break;
 
 }
@@ -606,6 +820,35 @@ break;
 
 
 
+
+/////////////////
+ function gethandlevalue($id,$handle) {
+$file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
+$this->resethci();
+
+	$mac = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'")['MAC'];
+	$cmd="sudo gatttool -i hci0 -b $mac -a $handle -n 00 --char-write-req --char-read";
+
+	$answ=shell_exec($cmd);
+	$debug = file_get_contents($file);
+	$debug.= $cmd.":".$answ."<br>\n";
+	file_put_contents($file, $debug);
+	$val=explode(':',$answ);
+	$bytes=explode(" ",trim($val[1]));
+        $sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='$handle'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']=$handle;
+	$cmd_rec2['DEVICE_ID']=$id;
+        $cmd_rec2['VALUE']=$val[1];
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{SQLInsert('ble_commands', $cmd_rec2);} else {SQLUpdate('ble_commands', $cmd_rec2);}
+return $val[1];
+
+}
+
+//////////////
 
 
 
@@ -648,6 +891,9 @@ return $vendor;
 
 
 }
+
+
+
  
 // --------------------------------------------------------------------
 }
