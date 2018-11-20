@@ -115,20 +115,25 @@ function run() {
 
  if ($this->view_mode=='indata_del') {
    $this->delete($this->id);
+   $this->redirect("?");
 }	
 
  if ($this->view_mode=='getservices') {
     $this->getservices($this->id);
+   $this->redirect("?&view_mode=edit_devices&id=".$this->id."&tab=services");
 }	
 
  if ($this->view_mode=='gethandles') {
     $this->gethandles($this->id);
+
+   $this->redirect("?&view_mode=edit_devices&id=".$this->id."&tab=handles");
 }	
 
 
 
  if ($this->view_mode=='getvalues') {
     $this->getvalues($this->id);
+   $this->redirect("?&view_mode=edit_devices&id=".$this->id."&tab=data");
 }	
 
 
@@ -141,6 +146,7 @@ if ($this->view_mode=='ping') {
 
 if ($this->view_mode=='discover') {
   $this->discover();
+  $this->redirect("?");
 
 }
 
@@ -148,11 +154,13 @@ if ($this->view_mode=='discover') {
 
 if ($this->view_mode=='clearall') {
   $this->clearall();
+  $this->redirect("?");
 
 }
 
       if ($this->view_mode == 'edit_devices') {
            $this->edit_devices($out, $this->id);
+
         }
 
 
