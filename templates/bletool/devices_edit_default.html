@@ -37,6 +37,7 @@
 			</label>
 			<div class="col-lg-4">
 <select name="type" class="form-control" style="width: 260px;" align="right">
+<option[#if TYPE=""#] selected[#endif#]>Please select one
 <option[#if TYPE="eQ-3-radiator-thermostat"#] selected[#endif#]>eQ-3-radiator-thermostat
 <option[#if TYPE="mi-flora-plant"#] selected[#endif#]>mi-flora-plant
 <option[#if TYPE="mi-band-1s"#] selected[#endif#]>mi-band-1s
@@ -120,7 +121,3 @@
 <img src="../img/modules/[#TYPE#].png" width="400">
 </td></tr></table>
 
-
-	
-	
-	
