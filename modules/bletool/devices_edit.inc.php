@@ -12,7 +12,7 @@
 $table_name='ble_devices';
 
 //echo $this->mode;
-if ((($this->tab=='infoedit')||($this->tab=='services')||($this->tab=='data'))&&($this->mode=='')) {
+if ((($this->tab=='infoedit')||($this->tab=='services')||($this->tab=='data')||($this->tab=='handles'))&&($this->mode=='')) {
 
 
 $sql="SELECT * FROM $table_name WHERE ID='$id'";
@@ -49,6 +49,16 @@ $rec=SQLSelectOne($sql);
     SQLUpdate('ble_devices', $rec);
 
 }
+
+
+if (($this->tab=='handles')&&($this->mode=='')) {
+   $properties=SQLSelect("SELECT * FROM ble_handles WHERE IDDEV='".$id."' ORDER BY ID");
+   $total=count($properties);
+   for($i=0;$i<$total;$i++) {
+$out['PROPERTIES']=$properties;      
+
+
+}}
 
 
 
