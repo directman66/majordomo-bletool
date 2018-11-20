@@ -123,6 +123,14 @@ function run() {
    $this->redirect("?&view_mode=edit_devices&id=".$this->id."&tab=services");
 }	
 
+ if ($this->view_mode=='updatevendor') {
+    $this->getvendor($this->mac);
+   $this->redirect("?");
+}	
+
+
+
+
  if ($this->view_mode=='gethandles') {
     $this->gethandles($this->id);
 
@@ -887,7 +895,10 @@ sleep(1);
 
  function getvendor($mac) {
 
-$url="https://macvendors.co/api/$mac/json";
+	$mac = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'")['MAC'];
+
+$url="https://macvendors.com/api/".urlencode($mac)."/json";
+//$url = "https://api.macvendors.com/" . urlencode($mac_address);
 $file = file_get_contents($url);
 $data=json_decode($file,true);
 //echo $file;
