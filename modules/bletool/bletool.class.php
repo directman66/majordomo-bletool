@@ -235,6 +235,7 @@ echo "linux system only";
 $cmd_rec = SQLSelect("delete  FROM ble_devices");
 $cmd_rec = SQLSelect("delete  FROM ble_services");
 $cmd_rec = SQLSelect("delete  FROM ble_commands");
+$cmd_rec = SQLSelect("delete  FROM ble_handles");
 }
 
  function pingall() {
@@ -538,12 +539,16 @@ $data2 =preg_split('/\\r\\n?|\\n/',$answ);
 foreach ($data2 as $key){
 
 $handle=trim(explode("=",explode(",",$key)[0])[1]);
-$char_prop=trim(explode(explode(",",$key)[1])[1]);
-$char_val=trim(explode(explode(",",$key)[2])[1]);
-$uuid=trim(explode(explode(",",$key)[3])[1]);
+$char_prop=trim(explode("=",explode(",",$key)[1])[1]);
+$char_val=trim(explode("=",explode(",",$key)[2])[1]);
+$uuid=trim(explode("=",explode(",",$key)[3])[1]);
 
 
-$sql="SELECT * FROM ble_handles where IDDEV='$id' and parametr='".trim($handle)."'";
+//echo trim(explode("=",explode(",",$key)[0])[1])."<br>";
+//echo trim(explode(explode(",",$key)[1]."<br>";
+
+
+$sql="SELECT * FROM ble_handles where IDDEV='$id' and handle='".trim($handle)."'";
 //echo $sql."<br>";
 $cmd_rec2 = SQLSelectOne($sql);
 
@@ -552,24 +557,17 @@ $cmd_rec2['handle']=$handle;
 $cmd_rec2['char_prop']=$char_prop;
 $cmd_rec2['char_val']=$char_val;
 $cmd_rec2['uuid']=$uuid;
-
-
-
 $cmd_rec2['updated']=date('Y-m-d H:i:s');
 
 
-
-
-if (($cmd_rec2['value'])&&($cmd_rec2['parametr']))
-{
 if (!$cmd_rec2['ID']) 
 {
 //$cmd_rec['ONLINE']=$onlinest;
-SQLInsert('ble_services', $cmd_rec2);
+SQLInsert('ble_handles', $cmd_rec2);
 } else {
-SQLUpdate('ble_services', $cmd_rec2);
+SQLUpdate('ble_handles', $cmd_rec2);
 }
-}
+
 
 
 
