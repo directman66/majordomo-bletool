@@ -1,6 +1,4 @@
-[#OUT#]
-
-<div><img src="../img/modules/wol.png" width="100"   >
+<div><img src="../img/modules/ble.png" width="100"   >
  &nbsp;&nbsp;<a class="btn btn-default" href="?data_source=<#DATA_SOURCE#>&view_mode=discover&tab=indata">SEARCH</a>
  &nbsp;&nbsp;<a class="btn btn-default" href="?data_source=<#DATA_SOURCE#>&view_mode=pingall&tab=indata">PINGALL</a>
  &nbsp;&nbsp;<a class="btn btn-default" href="?data_source=<#DATA_SOURCE#>&view_mode=clearall&tab=indata">CLEAR</a>
@@ -48,6 +46,11 @@
             <a href="?data_source=<#DATA_SOURCE#>&view_mode=edit_devices&id=<#ID#>&tab=services">Services</a>
          </li>
 
+         <li [#if TAB="handles"#] class="active"[#endif#]>
+            <a href="?data_source=<#DATA_SOURCE#>&view_mode=edit_devices&id=<#ID#>&tab=handles">Services</a>
+         </li>
+
+
          <li [#if TAB="data"#] class="active"[#endif#]>
             <a href="?data_source=<#DATA_SOURCE#>&view_mode=edit_devices&id=<#ID#>&tab=data"><#LANG_DATA#></a>
          </li>
@@ -67,9 +70,12 @@
    [#inc devices_edit_services.html#]
    [#endif TAB#]
 
+   [#if TAB="handles"#]
+   [#inc devices_edit_handles.html#]
+   [#endif TAB#]
 
    
-   [#if TAB="data"#]3
+   [#if TAB="data"#]
       [#inc devices_edit_data.html#]
    [#endif TAB#]
 
