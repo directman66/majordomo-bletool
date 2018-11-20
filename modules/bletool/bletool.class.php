@@ -520,7 +520,7 @@ $data = array();
 //$answ=shell_exec($cmd,$data);
 
 
-$cmd="gatttool --device=$max --characteristics";
+$cmd="gatttool --device=$mac --characteristics";
 
 //$cmd="sudo timeout -s INT 15s   hcitool leinfo $mac";
 //$cmd="sudo hcitool leinfo $mac";
