@@ -55,6 +55,7 @@ function saveParams($data=0) {
 */
 function getParams() {
   global $id;
+  global $mac;
   global $mode;
   global $view_mode;
   global $edit_mode;
@@ -122,10 +123,18 @@ function run() {
     $this->getservices($this->id);
    $this->redirect("?&view_mode=edit_devices&id=".$this->id."&tab=services");
 }	
-
+//echo "vm".$this->view_mode;
+//echo "mac".$this->id;
  if ($this->view_mode=='updatevendor') {
-    $this->getvendor($this->mac);
-   $this->redirect("?");
+$mac=$this->id;
+$vend= $this->getvendor($this->id);
+//echo "mac".$this->id;
+//echo $vend;
+
+
+sqlexec ("update ble_devices set VENDOR='$vend' where MAC='$mac'");
+
+  $this->redirect("?");
 }	
 
 
@@ -895,9 +904,10 @@ sleep(1);
 
  function getvendor($mac) {
 
-	$mac = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'")['MAC'];
-
-$url="https://macvendors.com/api/".urlencode($mac)."/json";
+//	$mac = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'")['MAC'];
+$url="https://macvendors.co/api/".$mac."/json";
+//echo $url;
+//$url="https://macvendors.co/api/".urlencode($mac)."/json";
 //$url = "https://api.macvendors.com/" . urlencode($mac_address);
 $file = file_get_contents($url);
 $data=json_decode($file,true);
