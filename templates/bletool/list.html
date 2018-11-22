@@ -36,9 +36,12 @@
 
 
  <td style="vertical-align:middle">
-[#if !VENDOR#]    <a href="?view_mode=updatevendor&mac=[#MAC#]&tab=indata"  class="btn btn-default" title="Update vendor">update
-[#end if#]
-    [#VENDOR#] </td>
+[#if VENDOR==""#]    <a href="?view_mode=updatevendor&id=[#MAC#]&tab=indata"   title="Update vendor">update vendor
+[#else#]
+    [#VENDOR#]
+
+[#endif#]
+ </td>
 
 
  <td style="vertical-align:middle">
@@ -80,4 +83,3 @@
 
 [#endif RESULT#]
 <!-- / results -->
-
