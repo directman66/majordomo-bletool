@@ -240,8 +240,8 @@ file_put_contents($file, $debug);
 		$cmd_rec['IPADDR']=$ipadr;
 		$cmd_rec['TITLE']=$name;
 		$cmd_rec['VENDOR']=$vendor;
-
-               if (substr(strtoupper ($mac),0,8) = 'C4:7C:8D') {$cmd_rec['TYPE']='mi-flora-plant';}
+$macc=strtoupper($mac);
+               if (substr($macc,0,8) == 'C4:7C:8D') {$cmd_rec['TYPE']='mi-flora-plant';}
 
 		$cmd_rec['ADDED']=date('Y-m-d H:i:s');
 
