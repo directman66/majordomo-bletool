@@ -240,6 +240,9 @@ file_put_contents($file, $debug);
 		$cmd_rec['IPADDR']=$ipadr;
 		$cmd_rec['TITLE']=$name;
 		$cmd_rec['VENDOR']=$vendor;
+
+               if (substr(strtoupper ($mac),0,8) = 'C4:7C:8D') {$cmd_rec['TYPE']='mi-flora-plant';}
+
 		$cmd_rec['ADDED']=date('Y-m-d H:i:s');
 
 if (!$cmd_rec['ID']) 
@@ -619,6 +622,12 @@ SQLUpdate('ble_handles', $cmd_rec2);
 
 
 ////////////////////////
+////////////////////////
+////////////////////////
+////////////////////////
+////////////////////////
+////////////////////////
+
 
 
 
@@ -793,7 +802,7 @@ $bytes=explode(" ",$answ);
 
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
-	if (!$cmd_rec2['ID']) 
+	if (!$cmd_rec2['ID']&&($cmd_rec2['VALUE'])) 
 	{
 	//$cmd_rec['ONLINE']=$onlinest;
 	SQLInsert('ble_commands', $cmd_rec2);
@@ -804,12 +813,12 @@ $bytes=explode(" ",$answ);
 
 
 //Feuchte, Temperatur, Licht, Leitfähigkeit)
-
+sleep(1);
 $answ=$this->getrawmiflora($mac);
 //sg('test.miflorastart',"mac:".$mac.":".$answ);
 
 
-//$bytes=explode(" ",$answ);
+$bytes=explode(" ",$answ);
 
 
 	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='raw'";
@@ -819,6 +828,7 @@ $answ=$this->getrawmiflora($mac);
 	$cmd_rec2['VALUE']=$answ;
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
+	if ($cmd_rec2['VALUE']) {
 	if (!$cmd_rec2['ID']) 
 	{
 	//$cmd_rec['ONLINE']=$onlinest;
@@ -826,6 +836,65 @@ $answ=$this->getrawmiflora($mac);
 	} else {
 	SQLUpdate('ble_commands', $cmd_rec2);
 	}
+ 	}
+
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='temperature'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='temperature';
+	$cmd_rec2['DEVICE_ID']=$id;
+//	$cmd_rec2['VALUE']=(hexdec($bytes[0])+hexdec($bytes[1])*256)/10;
+//	$cmd_rec2['VALUE']=(hexdec($bytes[0].$bytes[1]))/10;
+	$cmd_rec2['VALUE']=(hexdec($bytes[0])+hexdec($bytes[1]))/10;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if ($cmd_rec2['VALUE']) {
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+ 	}
+
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='lux'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='lux';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=hexdec($bytes[4]);
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+	
+	if ($cmd_rec2['VALUE']) {
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+ 	}
+
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='hudimity'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='hudimity';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=hexdec($bytes[8]);
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if ($cmd_rec2['VALUE']) 
+{
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+}
 
 
 
@@ -981,7 +1050,7 @@ sleep(2);
 }
 
 if ($state==1&&$s==0) { 
-echo $i.' send 0x33 A01F:';
+//echo $i.' send 0x33 A01F:';
 fputs($pipes[0], 'char-write-req 0x33 A01F'."\n");
 sleep(2);
 $s=$s+1;
@@ -1024,8 +1093,8 @@ substr($return_message,strpos($return_message, 'Characteristic value/descriptor'
  }
 
 if (strpos($return_message, 'Disconnected')>0) $state=3;
-        ob_flush();
-        flush();
+//        ob_flush();
+//        flush();
 $i=$i+1;
 
     }
