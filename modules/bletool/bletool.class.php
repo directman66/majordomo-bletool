@@ -8,6 +8,9 @@
 //
 //
 //ini_set ('display_errors', 'off');
+//ob_implicit_flush(true);
+set_time_limit(300);
+
 
 class bletool extends module {
 /**
@@ -770,7 +773,6 @@ $bytes=explode(" ",$answ);
 	$cmd_rec2['TITLE']='battery';
 	$cmd_rec2['DEVICE_ID']=$id;
 	$cmd_rec2['VALUE']=hexdec($bytes[1]);
-	//$cmd_rec2['VALUE']=$answ;
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
 	if (!$cmd_rec2['ID']) 
@@ -786,9 +788,9 @@ $bytes=explode(" ",$answ);
 	$cmd_rec2 = SQLSelectOne($sql);
 	$cmd_rec2['TITLE']='firmware';
 	$cmd_rec2['DEVICE_ID']=$id;
-//	$cmd_rec2['VALUE']=hex2bin($bytes[2].$bytes[3].$bytes[4].$bytes[5].$bytes[6]);
+
 	$cmd_rec2['VALUE']=hex2bin($bytes[3].$bytes[4].$bytes[5].$bytes[6].$bytes[7]);
-//$cmd_rec2['VALUE']=$answ;
+
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
 	if (!$cmd_rec2['ID']) 
@@ -801,17 +803,20 @@ $bytes=explode(" ",$answ);
 
 
 
-//Datenabruf (Feuchte, Temperatur, Licht, Leitfähigkeit)
-$answ=$this->gethandlevalue($id,'0x035');
+//Feuchte, Temperatur, Licht, Leitfähigkeit)
 
-$bytes=explode(" ",$answ);
+$answ=$this->getrawmiflora($mac);
+//sg('test.miflorastart',"mac:".$mac.":".$answ);
 
 
-	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='temp'";
+//$bytes=explode(" ",$answ);
+
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='raw'";
 	$cmd_rec2 = SQLSelectOne($sql);
-	$cmd_rec2['TITLE']='temp';
+	$cmd_rec2['TITLE']='raw';
 	$cmd_rec2['DEVICE_ID']=$id;
-	$cmd_rec2['VALUE']=trim($bytes[0]." ".$bytes[1]);
+	$cmd_rec2['VALUE']=$answ;
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
 	if (!$cmd_rec2['ID']) 
@@ -845,6 +850,8 @@ break;
 
 
 /////////////////
+////получение handle для всех устройств
+/////////////////
  function gethandlevalue($id,$handle) {
 $file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
 $this->resethci();
@@ -872,8 +879,8 @@ return $val[1];
 }
 
 //////////////
-
-
+///сброс для всех
+//////////////
 
  function resethci() {
 
@@ -902,6 +909,10 @@ sleep(1);
 
 }
 
+
+//////////////
+///вендор
+//////////////
  function getvendor($mac) {
 
 //	$mac = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'")['MAC'];
@@ -918,6 +929,113 @@ return $vendor;
 
 
 }
+
+
+
+//////////////
+///получение raw для mi plant
+//////////////
+function getrawmiflora($mac) {
+//set_time_limit(10);
+//ob_implicit_flush(true);
+
+
+$this->resethci();
+
+
+
+$state=0;
+
+//$exe_command = 'ping google.com';
+//$exe_command = 'gatttool --device=c4:7c:8d:63:71:c8  -I';
+//$exe_command = 'gatttool -t random -b --device=c4:7c:8d:63:71:c8  -I';
+$exe_command = 'gatttool -t random  -I';
+
+//sg('test.mif',$exe_command);
+//$exe_command = 'gatttool -I';
+//$exe_command = 'gatttool ';
+//$exe_command = 'sudo timeout -s INT 30s hcitool lescan';
+
+
+$descriptorspec = array(
+    0 => array("pipe", "r"),  // stdin
+    1 => array("pipe", "w"),  // stdout -> we use this
+    2 => array("pipe", "w")   // stderr 
+);
+$i=0;
+$s=0;
+$process = proc_open($exe_command, $descriptorspec, $pipes);
+
+if (is_resource($process))
+{
+
+
+
+    while( ! feof($pipes[1]))
+  {
+
+if ($state==0) { echo $i.' send conect:';
+
+fputs($pipes[0], "connect $mac"."\n");
+sleep(2);
+}
+
+if ($state==1&&$s==0) { 
+echo $i.' send 0x33 A01F:';
+fputs($pipes[0], 'char-write-req 0x33 A01F'."\n");
+sleep(2);
+$s=$s+1;
+//$state=2;
+}
+
+if ($state==2) { echo $i.' read  0x35:';
+fputs($pipes[0], 'char-read-hnd 0x35'."\n");
+sleep(1);
+}
+
+
+if ($state==3) { echo $i.' send exit:';
+  fputs($pipes[0], 'exit'."\n");
+}
+
+//fputs($pipes[0], 'help'."\n");
+//}
+
+
+//        fputs($pipes[0], 'char-read-hnd 0x35'."\n");
+
+        $return_message = fgets($pipes[1], 1024);
+  //      $return_message2 = fgets($pipes[2], 1024);
+        if (strlen($return_message) == 0) break;
+      if ($i>100) break;
+
+//echo $i." state:".$state." ".$return_message.'<br />';
+if (strpos($return_message, 'Connection successful')>0) $state=1;
+if (strpos($return_message, 'Characteristic value was written successfully')>0) $state=2;
+
+if (strpos($return_message, 'Characteristic value/descriptor')>0)
+{ $state=3; 
+
+$value=explode(":",
+
+substr($return_message,strpos($return_message, 'Characteristic value/descriptor'))
+)[1];
+//echo "value: ".$value."<br>";
+ }
+
+if (strpos($return_message, 'Disconnected')>0) $state=3;
+        ob_flush();
+        flush();
+$i=$i+1;
+
+    }
+//sleep(1);
+}
+//echo "<br>";
+return  $value;
+}
+
+
 
 
 
