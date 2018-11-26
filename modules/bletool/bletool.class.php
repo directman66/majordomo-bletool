@@ -814,6 +814,9 @@ $bytes=explode(" ",$answ);
 
 //Feuchte, Temperatur, Licht, Leitfähigkeit)
 sleep(1);
+//Альтернативный консольный вариант
+//gatttool -b c4:7c:8d:63:71:c8 --char-read -a 0x0038; sleep 1; gatttool -b c4:7c:8d:63:71:c8 --char-write -a 0x0033 -n 0xA01F; sleep 1; gatttool -b c4:7c:8d:63:71:c8 --char-read -a 0x0035; gatttool -b c4:7c:8d:63:71:c8 --char-read -a 0x0038; sleep 1; gatttool -b c4:7c:8d:63:71:c8 --char-write -a 0x0033 -n 0xA01F; sleep 1; timeout -s INT 10s gatttool -b c4:7c:8d:63:71:c8 --char-read -a 0x0035
+
 $answ=$this->getrawmiflora($mac);
 //sg('test.miflorastart',"mac:".$mac.":".$answ);
 
