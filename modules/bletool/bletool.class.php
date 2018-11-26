@@ -871,32 +871,11 @@ if (hexdec($bytes[8])=='0')  {$lb="false";} else {$lb="true";}
 
 
 
-switch (hexdec($bytes[2])) 
-case "2": 
-$mode="vacation"; break;
-case "3":
-$mode="boost"; break;
-case "4":
-$mode="dst"; break;
-
-case "5":
-$mode="open window"; break;
-
-case "6":
-$mode="locked"; break;
-
-case "7":
-$mode="unknown"; break;
-
-case "8":
-$mode="low battery"; break;
 
 
 
 
 
-
-}
 
 
 
