@@ -804,13 +804,29 @@ $bytes=explode(" ",$answ);
 	}
 
 
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='raw'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='raw';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=$answ;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
 
 
-$bytes=str_replace(" ","",$answ);
+
+
+//$bytes=str_replace(" ","",$answ);
 
 
 
-if (hexdec($bytes[1])=='0')  {$mode="auto";} else {$mode="manual";}
+if (hexdec($bytes[3])=='00')  {$mode="auto";} else {$mode="manual";}
 
 	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='mode'";
 	$cmd_rec2 = SQLSelectOne($sql);
@@ -828,6 +844,41 @@ if (hexdec($bytes[1])=='0')  {$mode="auto";} else {$mode="manual";}
 	}
 
 
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='current_t'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='current_t';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=hexdec($bytes[4])/2;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='percentage'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='percentage';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=hexdec($bytes[4])/2;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+
+
+
+
+/*
 if (hexdec($bytes[2])=='0')  {$vacation="false";} else {$vacation="true";}
 
 	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='vacation'";
@@ -930,12 +981,6 @@ if (hexdec($bytes[8])=='0')  {$lb="false";} else {$lb="true";}
 
 
 
-
-
-
-
-
-
 	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='mode'";
 	$cmd_rec2 = SQLSelectOne($sql);
 	$cmd_rec2['TITLE']='mode';
@@ -953,7 +998,7 @@ if (hexdec($bytes[8])=='0')  {$lb="false";} else {$lb="true";}
 
 
 $answ=$this->gethandlevalue($id,'0x0411', '04');
-
+*/
 
 	
 
