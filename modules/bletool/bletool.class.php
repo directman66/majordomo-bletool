@@ -242,6 +242,9 @@ file_put_contents($file, $debug);
 		$cmd_rec['VENDOR']=$vendor;
 $macc=strtoupper($mac);
                if (substr($macc,0,8) == 'C4:7C:8D') {$cmd_rec['TYPE']='mi-flora-plant';}
+               if (substr($macc,0,8) == '00:1A:22') {$cmd_rec['TYPE']='eQ-3-radiator-thermostat';}
+
+
 
 		$cmd_rec['ADDED']=date('Y-m-d H:i:s');
 
@@ -663,34 +666,27 @@ switch ($type) {
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
    case "eQ-3-radiator-thermostat":
-
-	$cmd="sudo gatttool -i hci0 -b $mac -a 0x0411 -n 00 --char-write-req --char-read";
-//	$cmd=" sudo timeout -s INT 30s  $mac -i hci0 -b 00:1A:22:06:A2:D3 -a 0x0411 -n 00 --char-write-req --listen";
+//https://github.com/Heckie75/eQ-3-radiator-thermostat/blob/master/eq-3-radiator-thermostat-api.md
 
 
-//sudo gatttool -i hci0 -b 00:1A:22:06:A2:D3 -a 0x0411 -n 00 --char-write-req --listen
-//echo $cmd."<br>";
 
-	$answ=shell_exec($cmd);
-	$debug = file_get_contents($file);
-	$debug.= $cmd.":".$answ."<br>\n";
-	file_put_contents($file, $debug);
+//Handle 0x0321 - The product name of the thermostat
+//
+//Encoded in ASCII, you must transform hex to ascii
+//Default value: „CC-RT-BLE“
+//Get: char-read-hnd 321
+//Characteristic value/descriptor: 43 43 2d 52 54 2d 42 4c 45
+//Set: n/a
+$answ=$this->gethandlevalue($id,'0x0321');
 
-echo $answ;
-$val=explode(':',$answ);
+$bytes=explode(" ",$answ);
 
-
-	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='debug'";
-	//echo $sql."<br>";
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='productname'";
 	$cmd_rec2 = SQLSelectOne($sql);
-	$cmd_rec2['TITLE']='debug';
+	$cmd_rec2['TITLE']='productname';
 	$cmd_rec2['DEVICE_ID']=$id;
-	$cmd_rec2['VALUE']=trim($val[1]);
-//	$cmd_rec2['UPDATED']=gg('sysdate').' '.gg('timenow');
+	$cmd_rec2['VALUE']=hex2bin($bytes[1]).hex2bin($bytes[2]).hex2bin($bytes[3]).hex2bin($bytes[4]).hex2bin($bytes[5]).hex2bin($bytes[6]).hex2bin($bytes[7]).hex2bin($bytes[8]).hex2bin($bytes[9]);
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
-
-	//if (array_key_exists($key,$cmd_rec2)) $cmd_rec2[$key]=$val;
-
 
 	if (!$cmd_rec2['ID']) 
 	{
@@ -700,13 +696,70 @@ $val=explode(':',$answ);
 	SQLUpdate('ble_commands', $cmd_rec2);
 	}
 
-$bytes=explode(" ",trim($val[1]));
+
+//Handle 0x311 – The vendor of the thermostat
+
+//Encoded in ASCII, you must transform hex to ascii
+//Default value: „eq-3“
+//Get: char-read-hnd 311
+//Characteristic value/descriptor: 65 71 2d 33
+//Set: n/a
+
+
+$answ=$this->gethandlevalue($id,'0x0311');
+
+$bytes=explode(" ",$answ);
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='vendor'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='vendor';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=hex2bin($bytes[1]).hex2bin($bytes[2]).hex2bin($bytes[3]).hex2bin($bytes[4]);
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+//Read serial number from device
+//
+//The serial number that is printed on the little badge between the two batteries can be quired as follows:
+
+//char-write-req 0411 00
+//                    01 6e 00 00 7f 75 81 60 66 61 66 64 61 64 9b
+//                                 |  |  |  |  |  |  |  |  |  |
+//Byte:                0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+//                                 |  |  |  |  |  |  |  |  |  |
+//Serial from badge:               O  E  Q  0  6  1  6  4  1  4
+  
+//  ascii = char(hex - 0x30)
+
+
+$answ=$this->gethandlevalue($id,'0x0411');
+
+$answ=$this->gethandlevalue($id,'0x0411', '03');
+
+//$bytes=explode(" ",$answ);
+$bytes=str_replace(" ","",$answ);
+
+
+switch (hexdec($bytes[1])) 
+{
+case "0": 
+$mode="auto"; break;
+case "1": 
+$mode="manual"; break;
+}
 
 	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='mode'";
 	$cmd_rec2 = SQLSelectOne($sql);
 	$cmd_rec2['TITLE']='mode';
 	$cmd_rec2['DEVICE_ID']=$id;
-	$cmd_rec2['VALUE']=trim($bytes[1]);
+	$cmd_rec2['VALUE']=hex2bin($bytes[1]).hex2bin($bytes[2]).hex2bin($bytes[3]).hex2bin($bytes[4]);
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
 	if (!$cmd_rec2['ID']) 
@@ -718,11 +771,92 @@ $bytes=explode(" ",trim($val[1]));
 	}
 
 
-	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='serialnumber'";
+if (hexdec($bytes[2])=='0')  {$vacation="false";} else {$vacation="true";}
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='vacation'";
 	$cmd_rec2 = SQLSelectOne($sql);
-	$cmd_rec2['TITLE']='serialnumber';
+	$cmd_rec2['TITLE']='vacation';
 	$cmd_rec2['DEVICE_ID']=$id;
-	$cmd_rec2['VALUE']=trim(hex2bin($bytes[4]).hex2bin($bytes[5]).hex2bin($bytes[6]).hex2bin($bytes[7]).hex2bin($bytes[8]).hex2bin($bytes[9]).hex2bin($bytes[10]).hex2bin($bytes[11]).hex2bin($bytes[12]).hex2bin($bytes[13]));
+	$cmd_rec2['VALUE']=$vacation;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+
+if (hexdec($bytes[3])=='0')  {$boost="false";} else {$boost="true";}
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='boost'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='boost';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=$boost;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+if (hexdec($bytes[4])=='0')  {$dst="false";} else {$dst="true";}
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='dst'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='dst';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=$dst;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+if (hexdec($bytes[5])=='0')  {$ow="false";} else {$ow="true";}
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='open_window'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='open_window';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=$ow;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+
+if (hexdec($bytes[6])=='0')  {$locked="false";} else {$locked="true";}
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='locked'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='locked';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=$locked;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+if (hexdec($bytes[8])=='0')  {$lb="false";} else {$lb="true";}
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='low_battery'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='low_battery';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=$lb;
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
 	if (!$cmd_rec2['ID']) 
@@ -736,36 +870,216 @@ $bytes=explode(" ",trim($val[1]));
 
 
 
-//	$data2 =preg_split('/\\r\\n?|\\n/',$answ);
-	//print_r($data2);
-//	foreach ($data2 as $key){
-//	$par=explode(":",$key)[0];
-//	$val=explode(":",$key)[1];
 
-//	$sql="SELECT * FROM ble_commands where IDDEV='$id' and parametr='".trim($par)."'";
-	//echo $sql."<br>";
-//	$cmd_rec2 = SQLSelectOne($sql);
-//	$cmd_rec2['debug']=$answ;
+switch (hexdec($bytes[2])) 
+case "2": 
+$mode="vacation"; break;
+case "3":
+$mode="boost"; break;
+case "4":
+$mode="dst"; break;
 
-	//if (array_key_exists($key,$cmd_rec2)) $cmd_rec2[$key]=$val;
-//	$cmd_rec2['IDDEV']=$id;
-//	$cmd_rec2['value']=trim($val);
-//	$cmd_rec2['parametr']=trim($par);
+case "5":
+$mode="open window"; break;
 
-//print_r($cmd_rec2);
+case "6":
+$mode="locked"; break;
+
+case "7":
+$mode="unknown"; break;
+
+case "8":
+$mode="low battery"; break;
 
 
-//	if (($cmd_rec2['value'])&&($cmd_rec2['parametr']))
-//	{
-//	if (!$cmd_rec2['ID']) 
-//	{
+
+
+
+
+}
+
+
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='mode'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='mode';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=hex2bin($bytes[1]).hex2bin($bytes[2]).hex2bin($bytes[3]).hex2bin($bytes[4]);
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
 	//$cmd_rec['ONLINE']=$onlinest;
-//	SQLInsert('ble_commands', $cmd_rec2);
-//	} else {
-//	SQLUpdate('ble_commands', $cmd_rec2);
-//	}
-//	}}
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+	
+
 break;
+
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+   case "mi-band-1s":
+//https://habr.com/post/276343/
+//http://allmydroids.blogspot.com/2014/12/xiaomi-mi-band-ble-protocol-reverse.html
+//firmware version + battery level
+$answ=$this->gethandlevalue($id,'0x002c');
+
+$bytes=explode(" ",$answ);
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='battery'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='battery';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=hexdec($bytes[1]);
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+
+switch (hexdec($bytes[9])) 
+{
+case "1": 
+$battery_status="Battery low"; break;
+case "2": 
+$battery_status="Battery charging";break;
+case "3": 
+$battery_status="Battery full (charging)";break;
+case "4":
+ $battery_status="Not charging";break;
+}
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='battery_status'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='battery_status';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=$battery_status;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+$answ=$this->gethandlevalue($id,'0x001D');
+
+$bytes=explode(" ",$answ);
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='steps'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='steps';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=hexdec($bytes[4]).hexdec($bytes[3]).hexdec($bytes[2]).hexdec($bytes[1]);
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+
+
+
+
+break;
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+
+
+   case "mi-band-2":
+//http://allmydroids.blogspot.com/2014/12/xiaomi-mi-band-ble-protocol-reverse.html
+//firmware version + battery level
+$answ=$this->gethandlevalue($id,'0x002c');
+
+$bytes=explode(" ",$answ);
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='battery'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='battery';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=hexdec($bytes[1]);
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+switch (hexdec($bytes[9])) 
+{
+case "1": 
+$battery_status="Battery low"; break;
+case "2": 
+$battery_status="Battery charging";break;
+case "3": 
+$battery_status="Battery full (charging)";break;
+case "4":
+ $battery_status="Not charging";break;
+}
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='battery_status'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='battery_status';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=$battery_status;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+
+/////////////////
+///Steps
+/////////////////
+
+$answ=$this->gethandlevalue($id,'0xFF06');
+
+$bytes=explode(" ",$answ);
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='steps'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='steps';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=hexdec($bytes[1].$bytes[2]);
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+
+break;
+
+
+
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
@@ -924,12 +1238,12 @@ break;
 /////////////////
 ////получение handle для всех устройств
 /////////////////
- function gethandlevalue($id,$handle) {
+ function gethandlevalue($id,$handle,$a="00" ) {
 $file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
 $this->resethci();
 
 	$mac = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'")['MAC'];
-	$cmd="sudo gatttool -i hci0 -b $mac -a $handle -n 00 --char-write-req --char-read";
+	$cmd="sudo gatttool -i hci0 -b $mac -a $handle -n ".$val." --char-write-req --char-read";
 
 	$answ=shell_exec($cmd);
 	$debug = file_get_contents($file);
@@ -937,9 +1251,10 @@ $this->resethci();
 	file_put_contents($file, $debug);
 	$val=explode(':',$answ);
 	$bytes=explode(" ",trim($val[1]));
-        $sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='$handle'";
+	$hval=$handle.'_'.$a;
+        $sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='$hval'";
 	$cmd_rec2 = SQLSelectOne($sql);
-	$cmd_rec2['TITLE']=$handle;
+	$cmd_rec2['TITLE']=$hval;
 	$cmd_rec2['DEVICE_ID']=$id;
         $cmd_rec2['VALUE']=$val[1];
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
