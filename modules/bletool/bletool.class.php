@@ -848,7 +848,7 @@ if (hexdec($bytes[3])=='00')  {$mode="auto";} else {$mode="manual";}
 	$cmd_rec2 = SQLSelectOne($sql);
 	$cmd_rec2['TITLE']='current_t';
 	$cmd_rec2['DEVICE_ID']=$id;
-	$cmd_rec2['VALUE']=hexdec($bytes[4])/2;
+	$cmd_rec2['VALUE']=hexdec($bytes[6])/2;
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
 	if (!$cmd_rec2['ID']) 
