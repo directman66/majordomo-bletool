@@ -739,27 +739,84 @@ $bytes=explode(" ",$answ);
 //  ascii = char(hex - 0x30)
 
 
-$answ=$this->gethandlevalue($id,'0x0411');
+//$answ=$this->gethandlevalue($id,'0x0411');
 
-$answ=$this->gethandlevalue($id,'0x0411', '03');
+$answ=$this->getraweq3($mac, "0x0411", "00");
 
-//$bytes=explode(" ",$answ);
+//$answ=$this->gethandlevalue($id,'0x0411', '03');
+
+$bytes=explode(" ",$answ);
+
+/*
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='raw'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='raw';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=$answ;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+*/
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='sn'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='sn';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=hex2bin($bytes[4]).hex2bin($bytes[5]).hex2bin($bytes[6]).hex2bin($bytes[7]).hex2bin($bytes[8]).hex2bin($bytes[9]).hex2bin($bytes[10]).hex2bin($bytes[11]).hex2bin($bytes[12]).hex2bin($bytes[13]);
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+
+
+$answ=$this->getraweq3($mac, "0x0411", "03");
+
+//$answ=$this->gethandlevalue($id,'0x0411', '03');
+
+$bytes=explode(" ",$answ);
+
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='raw'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='raw';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=$answ;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+
+
+
 $bytes=str_replace(" ","",$answ);
 
 
-switch (hexdec($bytes[1])) 
-{
-case "0": 
-$mode="auto"; break;
-case "1": 
-$mode="manual"; break;
-}
+
+if (hexdec($bytes[1])=='0')  {$mode="auto";} else {$mode="manual";}
 
 	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='mode'";
 	$cmd_rec2 = SQLSelectOne($sql);
 	$cmd_rec2['TITLE']='mode';
 	$cmd_rec2['DEVICE_ID']=$id;
-	$cmd_rec2['VALUE']=hex2bin($bytes[1]).hex2bin($bytes[2]).hex2bin($bytes[3]).hex2bin($bytes[4]);
+	$cmd_rec2['VALUE']=$mode;
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
 	if (!$cmd_rec2['ID']) 
@@ -893,6 +950,10 @@ if (hexdec($bytes[8])=='0')  {$lb="false";} else {$lb="true";}
 	} else {
 	SQLUpdate('ble_commands', $cmd_rec2);
 	}
+
+
+$answ=$this->gethandlevalue($id,'0x0411', '04');
+
 
 	
 
@@ -1402,6 +1463,103 @@ return  $value;
 }
 
 
+
+
+//////////////
+///получение raw для eq3
+//////////////
+function getraweq3($mac, $handle, $a) {
+//set_time_limit(10);
+//ob_implicit_flush(true);
+
+
+$this->resethci();
+
+
+
+$state=0;
+
+$exe_command = 'gatttool -t random  -I';
+
+$descriptorspec = array(
+    0 => array("pipe", "r"),  // stdin
+    1 => array("pipe", "w"),  // stdout -> we use this
+    2 => array("pipe", "w")   // stderr 
+);
+$i=0;
+$s=0;
+$process = proc_open($exe_command, $descriptorspec, $pipes);
+
+if (is_resource($process))
+{
+
+
+
+    while( ! feof($pipes[1]))
+  {
+
+if ($state==0) {
+// echo $i.' send conect:';
+
+fputs($pipes[0], "connect $mac"."\n");
+sleep(2);
+}
+
+if ($state==1&&$s==0) { 
+echo $i.' send 0x0411 00:';
+fputs($pipes[0], "char-write-req $handle $a"."\n");
+sleep(2);
+$s=$s+1;
+//$state=2;
+}
+
+if ($state==2) {
+//echo $i.' read  0x35:';
+//fputs($pipes[0], 'char-read-hnd 0x35'."\n");
+//sleep(1);
+}
+
+
+if ($state==3) {
+// echo $i.' send exit:';
+  fputs($pipes[0], 'exit'."\n");
+}
+
+//fputs($pipes[0], 'help'."\n");
+//}
+
+
+//        fputs($pipes[0], 'char-read-hnd 0x35'."\n");
+
+        $return_message = fgets($pipes[1], 1024);
+  //      $return_message2 = fgets($pipes[2], 1024);
+        if (strlen($return_message) == 0) break;
+      if ($i>100) break;
+
+//echo $i." state:".$state." ".$return_message.'<br />';
+if (strpos($return_message, 'Connection successful')>0) $state=1;
+if (strpos($return_message, 'Characteristic value was written successfully')>0) $state=2;
+
+
+if (strpos($return_message, 'Notification handle')>0)
+{ $state=3; 
+$value=explode(":",substr($return_message,strpos($return_message, 'Notification handle')))[1];
+echo "value: ".$value."<br>";
+ }
+
+if (strpos($return_message, 'Disconnected')>0) $state=3;
+
+
+
+$i=$i+1;
+
+    }
+//sleep(1);
+}
+echo "<br>";
+//echo  $value;
+return  $value;
+}
 
 
 
