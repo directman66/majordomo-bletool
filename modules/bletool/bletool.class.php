@@ -164,6 +164,16 @@ if ($this->view_mode=='ping') {
 //  $this->pingall();
 }
 
+
+
+
+if ($this->view_mode=='resethci') {
+  $this->resethci();
+  $this->redirect("?");
+
+}
+
+
 if ($this->view_mode=='discover') {
   $this->discover();
   $this->redirect("?");
@@ -348,16 +358,21 @@ $a=shell_exec("hciconfig");
 
 $a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
 $out['bluetoothctl']=$a;
-
-
+//////////
 $filename = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
-
-//$a=shell_exec("sudo bluetoothctl");
 $a=shell_exec("hcitool dev");
-
-
 $a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
 $out['hcitooldev']=$a;
+
+
+//////////
+$filename = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
+$a=shell_exec("sudo hcitool con");
+$a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
+$out['con']=$a;
+
+
+
 
 
 
