@@ -372,6 +372,13 @@ $a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
 $out['con']=$a;
 
 
+	if(exec('sudo echo test') == 'test') {
+	$out['SUDO_TEST'] = 1; 			
+	} else {
+	$out['SUDO_TEST'] = 0;}
+			
+
+
 
 
 
