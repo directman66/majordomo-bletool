@@ -12,6 +12,7 @@
 
 <li [#if TAB=="" || TAB=="indata" #] class="active" [#endif#]><a href="?data_source=<#DATA_SOURCE#>&view_mode=&id=<#ID#>&tab=indata">BLE_Devices</a> </li>
 <li [#if TAB=="debug" #] class="active" [#endif#]><a href="?view_mode=<#VIEW_MODE#>&tab=debug">Debug</a> </li>		 
+<li [#if TAB=="info" #] class="active" [#endif#]><a href="?view_mode=<#VIEW_MODE#>&tab=info">Info</a> </li>		 
 <li [#if TAB=="help" #] class="active" [#endif#]><a href="?view_mode=<#VIEW_MODE#>&tab=help">Помощь</a> </li>	
 	
 </ul>
@@ -24,9 +25,9 @@
 [#DEBUG#]
 
 </div>
-
-
 [#endif#]
+
+[#if TAB="info"#] [#inc info.html#] [#endif#]
 [#if TAB="help"#] [#inc help.html#] [#endif#]
 
 [#endif#]
