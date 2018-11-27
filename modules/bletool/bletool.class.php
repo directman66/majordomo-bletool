@@ -1442,7 +1442,7 @@ sleep(1);
  function getvendor($mac) {
 
 //	$mac = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'")['MAC'];
-$url="https://macvendors.co/api/".$mac."/json";
+$url="http://macvendors.co/api/".$mac."/json";
 //echo $url;
 //$url="https://macvendors.co/api/".urlencode($mac)."/json";
 //$url = "https://api.macvendors.com/" . urlencode($mac_address);
