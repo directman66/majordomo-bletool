@@ -336,6 +336,36 @@ $out['DEBUG']=$a;
 
 }
 
+
+ if ($this->tab=='info') {
+//$this->searchdevices($out);
+
+$filename = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
+
+//$a=shell_exec("sudo bluetoothctl");
+$a=shell_exec("hciconfig");
+
+
+$a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
+$out['bluetoothctl']=$a;
+
+
+$filename = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
+
+//$a=shell_exec("sudo bluetoothctl");
+$a=shell_exec("hcitool dev");
+
+
+$a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
+$out['hcitooldev']=$a;
+
+
+
+
+
+
+}
+
 }
 
 
