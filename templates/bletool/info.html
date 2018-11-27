@@ -11,4 +11,22 @@
 [#con#]<br>
 
 
+<b>Проверка прав sudo:<br></b>
+						[#if SUDO_TEST="1"#]
+
+								Пользователя www-data имеет права  к выполнению команд через sudo.<br />
+[#else#]							
+<span style="color: red;">
+								Пользователя www-data не имеет права  к выполнению команд через sudo.<br />
+							</span>
+
+
+								В терминале Linux введите "<i>sudo visudo</i>" и в открывшийся файл добавьте строчку "<i>www-data ALL=(ALL) NOPASSWD:ALL</i>" (без кавычек), после чего нажмите <i>Ctrl+O</i> и <i>Enter</i> для сохранения изменений. Выход из visudo осуществляется с помощью сочетания клавиш <i>Ctrl+X</i>.
+							<br />
+						[#endif#]
+
+
+
+
+<br>
  <a href="?view_mode=resethci&id=[#ID#]&tab=indata" class="btn btn-primary">RESET HCI</a>
