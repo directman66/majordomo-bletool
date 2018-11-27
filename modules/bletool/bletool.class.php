@@ -747,10 +747,10 @@ $answ=$this->getraweq3($mac, "0x0411", "00");
 
 $bytes=explode(" ",$answ);
 
-/*
-	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='raw'";
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='snraw'";
 	$cmd_rec2 = SQLSelectOne($sql);
-	$cmd_rec2['TITLE']='raw';
+	$cmd_rec2['TITLE']='snraw';
 	$cmd_rec2['DEVICE_ID']=$id;
 	$cmd_rec2['VALUE']=$answ;
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
@@ -762,13 +762,14 @@ $bytes=explode(" ",$answ);
 	} else {
 	SQLUpdate('ble_commands', $cmd_rec2);
 	}
-*/
+
 
 	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='sn'";
 	$cmd_rec2 = SQLSelectOne($sql);
 	$cmd_rec2['TITLE']='sn';
 	$cmd_rec2['DEVICE_ID']=$id;
-	$cmd_rec2['VALUE']=hex2bin($bytes[4]).hex2bin($bytes[5]).hex2bin($bytes[6]).hex2bin($bytes[7]).hex2bin($bytes[8]).hex2bin($bytes[9]).hex2bin($bytes[10]).hex2bin($bytes[11]).hex2bin($bytes[12]).hex2bin($bytes[13]);
+//	$cmd_rec2['VALUE']=hex2bin($bytes[4]).hex2bin($bytes[5]).hex2bin($bytes[6]).hex2bin($bytes[7]).hex2bin($bytes[8]).hex2bin($bytes[9]).hex2bin($bytes[10]).hex2bin($bytes[11]).hex2bin($bytes[12]).hex2bin($bytes[13]);
+	$cmd_rec2['VALUE']=hex2bin($bytes[4].$bytes[5].$bytes[6].$bytes[7].$bytes[8].$bytes[9].$bytes[10].$bytes[11].$bytes[12].$bytes[13]);
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
 	if (!$cmd_rec2['ID']) 
@@ -1247,7 +1248,7 @@ $bytes=explode(" ",$answ);
 	$cmd_rec2['DEVICE_ID']=$id;
 //	$cmd_rec2['VALUE']=(hexdec($bytes[0])+hexdec($bytes[1])*256)/10;
 //	$cmd_rec2['VALUE']=(hexdec($bytes[0].$bytes[1]))/10;
-	$cmd_rec2['VALUE']=(hexdec($bytes[0])+hexdec($bytes[1]))/10;
+	$cmd_rec2['VALUE']=(hexdec($bytes[2].$bytes[1]))/10;
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
 	if ($cmd_rec2['VALUE']) {
@@ -1265,7 +1266,7 @@ $bytes=explode(" ",$answ);
 	$cmd_rec2 = SQLSelectOne($sql);
 	$cmd_rec2['TITLE']='lux';
 	$cmd_rec2['DEVICE_ID']=$id;
-	$cmd_rec2['VALUE']=hexdec($bytes[4]);
+	$cmd_rec2['VALUE']=hexdec($bytes[5].$bytes[4]);
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 	
 	if ($cmd_rec2['VALUE']) {
@@ -1279,15 +1280,13 @@ $bytes=explode(" ",$answ);
  	}
 
 
-	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='hudimity'";
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='moisture'";
 	$cmd_rec2 = SQLSelectOne($sql);
-	$cmd_rec2['TITLE']='hudimity';
+	$cmd_rec2['TITLE']='moisture';
 	$cmd_rec2['DEVICE_ID']=$id;
 	$cmd_rec2['VALUE']=hexdec($bytes[8]);
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
-	if ($cmd_rec2['VALUE']) 
-{
 
 	if (!$cmd_rec2['ID']) 
 	{
@@ -1296,7 +1295,7 @@ $bytes=explode(" ",$answ);
 	} else {
 	SQLUpdate('ble_commands', $cmd_rec2);
 	}
-}
+
 
 
 
