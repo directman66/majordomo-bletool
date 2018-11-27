@@ -1172,6 +1172,9 @@ break;
 //////////////////////////////////////////////////////////////////
    case "mi-flora-plant":
 
+//https://wiki.hackerspace.pl/projects:xiaomi-flora
+//http://www.n8chteule.de/zentris-blog/2017/07/16/nit-xiaomi-plant-sensor-2-python-programming/
+
 //firmware version + battery level
 $answ=$this->gethandlevalue($id,'0x038');
 
