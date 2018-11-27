@@ -5,34 +5,15 @@
 		<a data-toggle="collapse" data-parent="#accordion" href="#sms_help">Информация</a>
 		</div>
 		<div class="panel-body collapse" id="sms_help">
-		Модуль отправляет магические пакеты Wake On Lan.
-При нажатии кнопки Discovery производится запрос arp таблицы и запоминаются доступные данные устройств. По кнопке pingall производитяс 
-опрос всей таблицы методом ping. 
-<br>
-Для того, чтобы отправить пакет WOL, нужно нажать на кнопку с mac-адресом устройства.
-			</br>   
+Модуль для работы с BLE устройствами. Использует утилиты, входящие в комплект Bluez (hcitool, gatttool), поэтому использование возможно только в linux. 
+В ubuntu 18.04 данные утилиты поставляются штатно и уже были включены в дистрибутив. В raspbian эти утилиты также предуставновлены. 
+Фукционал тестировался с использованием USB стика CSR4 BTD-401 
+<a href="https://ru.aliexpress.com/item/Bluetooth-Adapter-V4-0-CSR-Dual-Mode-Wireless-Mini-USB-Bluetooth-Dongle-4-0-Transmitter-For/32817286984.html?spm=a2g0s.9042311.0.0.274233edeKwEac" target="_blank">Ссылка</a><br>
+
 
 	
 		</div> </div> </div>
 
-<div class="panel-group" id="accordion">
-	<div class="panel panel-info">
-		<div class="panel-heading">
-		<a data-toggle="collapse" data-parent="#accordion" href="#vizov">Вызов из сценариев</a>
-		</div>
-		<div class="panel-body collapse" id="vizov">
-
-
-<code><b>
-include_once(DIR_MODULES . 'wol/wol.class.php');<br>
-$wake = new wol();<br>
-$wake->WakeOnLan('74:d4:35:e4:82:f7');</b></code> <br>
-<br><br>			
-
-			</br>     </br>
-
-	
-		</div> </div> </div>
 
 
 
@@ -47,8 +28,8 @@ $wake->WakeOnLan('74:d4:35:e4:82:f7');</b></code> <br>
 		</div>
 		<div class="panel-body collapse" id="cont">
 		<p><b>
-<a href="https://github.com/directman66/majordomo-wol" target="_blank">Ссылка на репозиторий</a><br>
-<a href="http://majordomo.smartliving.ru/forum/viewtopic.php?f=5&t=5830" target="_blank">Тема на форуме</a>.<br></b></br>
+<a href="https://github.com/directman66/majordomo-bletool" target="_blank">Ссылка на репозиторий</a><br>
+<a href="https://majordomo.smartliving.ru/forum/viewtopic.php?f=5&t=5895&p=92564" target="_blank">Тема на форуме</a>.<br></b></br>
 		</div> </div> </div>
 
 <div class="panel-group" id="accordion">
