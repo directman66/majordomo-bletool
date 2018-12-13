@@ -210,12 +210,15 @@ if ($this->view_mode=='clearall') {
 
 
    $every=$res[$i]['POLLING'];
-   $tdev = time()-$res[$i]['UPDATEDTS'];
+   if ($res[$i]['UPDATEDTS']) {$tdev = time()-$res[$i]['UPDATEDTS'];}
+else {$tdev = time()-1000;}
    $has = $tdev>$every*60;
    if ($tdev < 0) {$has=true;}
 
-if ($has){
 
+
+if ($has){
+debmes('starting getvalues for ',$res[$i]['ID']. "from cycle", 'bletool');
 $this->getvalues($res[$i]['ID']);
 $res[$i]['UPDATED']=date('Y-m-d H:i:s');
 $res[$i]['UPDATEDTS']=time();
@@ -231,7 +234,7 @@ $file = ROOT.'cms/cached/bletools'; // полный путь к нужному �
 //echo php_uname();
 //echo PHP_OS;
 $debug = file_get_contents($file);
-$debug .= "Snanning run at ".gg('sysdate').' '.gg('timenow')."<br>\n";
+$debug .= "Scanning run at ".gg('sysdate').' '.gg('timenow')."<br>\n";
 file_put_contents($file, $debug);
 
 
@@ -587,6 +590,7 @@ $cmd_rec2['parametr']=trim($par);
 
 $cmd_rec2['updated']=date('Y-m-d H:i:s');
 
+
 if (($cmd_rec2['value'])&&($cmd_rec2['parametr']))
 {
 if (!$cmd_rec2['ID']) 
@@ -596,6 +600,7 @@ SQLInsert('ble_services', $cmd_rec2);
 } else {
 SQLUpdate('ble_services', $cmd_rec2);
 }
+
 }
 
 
@@ -736,6 +741,12 @@ $id=$cmd_rec['ID'];
 $mac=$cmd_rec['MAC'];
 $type=$cmd_rec['TYPE'];
 
+
+
+
+$sql='update ble_devices set UPDATED=\''.date('Y-m-d H:i:s')."',  UPDATEDTS='".time()."' where ID=".$id;
+sqlexec($sql);
+debmes($sql, 'bletool');
 
 
 
