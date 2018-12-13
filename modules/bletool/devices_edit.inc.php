@@ -51,6 +51,56 @@ $rec=SQLSelectOne($sql);
 }
 
 
+
+
+//echo $this->tab.":".$this->mode;
+if (($this->tab=='data')&&($this->mode=='update')) {
+
+
+   $properties=SQLSelect("SELECT * FROM ble_commands WHERE DEVICE_ID='".$id."' ORDER BY ID");
+//print_r($properties);
+
+   $total=count($properties);
+   for($i=0;$i<$total;$i++) {
+    if ($properties[$i]['ID']==$new_id) continue;
+    if ($this->mode=='update') {
+        /*
+      global ${'title'.$properties[$i]['ID']};
+      $properties[$i]['TITLE']=trim(${'title'.$properties[$i]['ID']});
+      global ${'value'.$properties[$i]['ID']};
+      $properties[$i]['VALUE']=trim(${'value'.$properties[$i]['ID']});
+        */
+      global ${'linked_object'.$properties[$i]['ID']};
+      $properties[$i]['LINKED_OBJECT']=trim(${'linked_object'.$properties[$i]['ID']});
+      global ${'linked_property'.$properties[$i]['ID']};
+      $properties[$i]['LINKED_PROPERTY']=trim(${'linked_property'.$properties[$i]['ID']});
+
+      global ${'linked_method'.$properties[$i]['ID']};
+      $properties[$i]['LINKED_METHOD'] = trim(${'linked_method'.$properties[$i]['ID']});
+
+
+      SQLUpdate('ble_commands', $properties[$i]);
+      $old_linked_object=$properties[$i]['LINKED_OBJECT'];
+      $old_linked_property=$properties[$i]['LINKED_PROPERTY'];
+
+      if ($old_linked_object && $old_linked_object!=$properties[$i]['LINKED_OBJECT'] && $old_linked_property && $old_linked_property!=$properties[$i]['LINKED_PROPERTY']) {
+       removeLinkedProperty($old_linked_object, $old_linked_property, $this->name);
+      }
+     }///update
+
+       if ($properties[$i]['LINKED_OBJECT'] && $properties[$i]['LINKED_PROPERTY']) {
+           addLinkedProperty($properties[$i]['LINKED_OBJECT'], $properties[$i]['LINKED_PROPERTY'], $this->name);
+       }
+   }
+  $this->redirect("?view_mode=edit_devices&tab=data&id=$id");
+}
+   
+
+
+
+
+
+
 if (($this->tab=='handles')&&($this->mode=='')) {
    $properties=SQLSelect("SELECT * FROM ble_handles WHERE IDDEV='".$id."' ORDER BY ID");
    $total=count($properties);
@@ -106,12 +156,12 @@ $out['PROPERTIES']=$properties;
       SQLUpdate('ble_commands', $properties[$i]);
       $old_linked_object=$properties[$i]['LINKED_OBJECT'];
       $old_linked_property=$properties[$i]['LINKED_PROPERTY'];
-//СѓРґР°Р»РµРЅРёРµ linked
+//╨б╤У╨а╥С╨а┬░╨а┬╗╨а┬╡╨а╨Е╨а╤С╨а┬╡ linked
       if ($old_linked_object && $old_linked_object!=$properties[$i]['LINKED_OBJECT'] && $old_linked_property && $old_linked_property!=$properties[$i]['LINKED_PROPERTY']) {
        removeLinkedProperty($old_linked_object, $old_linked_property, $this->name);
       }
      }///update
-//РґРѕР±Р°РІР»РµРЅРёРµ linked
+//╨а╥С╨а╤Х╨а┬▒╨а┬░╨а╨Ж╨а┬╗╨а┬╡╨а╨Е╨а╤С╨а┬╡ linked
        if ($properties[$i]['LINKED_OBJECT'] && $properties[$i]['LINKED_PROPERTY']) {
            addLinkedProperty($properties[$i]['LINKED_OBJECT'], $properties[$i]['LINKED_PROPERTY'], $this->name);
        }
