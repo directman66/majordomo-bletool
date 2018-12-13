@@ -198,6 +198,31 @@ if ($this->view_mode=='clearall') {
 
 }
 
+
+ function processCycle() {
+   
+	
+
+  $res=SQLSelect("SELECT ble_devices.* FROM ble_devices where POLLING is not null and POLLING<>0  ");
+			$total = count($res);
+			for($i=0; $i<$total; $i++) {
+//$polling=$res['POLLING'];
+
+
+   $every=$res['POLLING'];
+   $tdev = time()-$res['UPDATEDTS'];
+   $has = $tdev>$every*60;
+   if ($tdev < 0) {
+
+$this->getvalues($res[$i]['ID']);
+$res[$i]['UPDATED']=date('Y-m-d H:i:s');
+$res[$i]['UPDATEDTS']=time();
+SQLUpdate('ble_devices', $res[$i]);
+
+  } 
+  }
+  }
+
  function discover() {
 
 $file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
@@ -330,6 +355,16 @@ SQLUpdate('ble_devices', $cmd_rec);
 * @access public
 */
 function admin(&$out) {
+
+        if ((time() - gg('cycle_bletoolRun')) < 360*2 ) {
+			$out['CYCLERUN'] = 1;
+		} else {
+			$out['CYCLERUN'] = 0;
+		}
+	
+
+
+
  if ($this->view_mode=='edit_devices') {
 $this->edit_devices($out, $this->id);
 //$this->edit_devices($out);
@@ -433,6 +468,9 @@ ble_devices: TYPE varchar(100) NOT NULL DEFAULT ''
 ble_devices: SERVICES varchar(100) NOT NULL DEFAULT ''
 ble_devices: ADDED datetime
 ble_devices: ENABLE int(1) 
+ble_devices: POLLING int(10) 
+ble_devices: UPDATED datetime
+ble_devices: UPDATEDTS varchar(100) NOT NULL DEFAULT ''
 
 ble_services: ID int(10) unsigned NOT NULL auto_increment
 ble_services: IDDEV int(10) 
