@@ -159,7 +159,7 @@ if ($cmd_rec2['LINKED_OBJECT']!='' && $cmd_rec2['LINKED_PROPERTY']!='') {
 setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$newvalue ,array($this->name => '0'));
 }
 
-	$cmd_rec2="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='fertility'";
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='fertility'";
 	$cmd_rec2 = SQLSelectOne($sql);
 	$cmd_rec2['TITLE']='fertility';
 	$cmd_rec2['DEVICE_ID']=$id;
