@@ -201,7 +201,7 @@ if ($this->view_mode=='clearall') {
 
  function processCycle() {
    
-	
+debmes('start processCycle', 'bletool');	
 
   $res=SQLSelect("SELECT ble_devices.* FROM ble_devices where POLLING is not null and POLLING<>0  ");
 			$total = count($res);
@@ -213,8 +213,12 @@ if ($this->view_mode=='clearall') {
    if ($res[$i]['UPDATEDTS']) {$tdev = time()-$res[$i]['UPDATEDTS'];}
 else {$tdev = time()-1000;}
    $has = $tdev>$every*60;
+
+
+
    if ($tdev < 0) {$has=true;}
 
+debmes('tdev: '.$tdev.", every:".$every." UPDATEDTS:".$res[$i]['UPDATEDTS']." has:".$has." id:".$res[$i]['ID']." ".$res[$i]['TITLE'], 'bletool');
 
 
 if ($has){
