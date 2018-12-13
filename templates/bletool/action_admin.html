@@ -52,19 +52,20 @@
          <li [#if TAB=="" || TAB=="infoedit" #] class="active"[#endif#]>
             <a href="?data_source=<#DATA_SOURCE#>&view_mode=edit_devices&id=<#ID#>&tab=infoedit"><#LANG_GENERAL#></a>
          </li>
+         <li [#if TAB="data"#] class="active"[#endif#]>
+            <a href="?data_source=<#DATA_SOURCE#>&view_mode=edit_devices&id=<#ID#>&tab=data"><#LANG_DATA#></a>
+         </li>
+
 
          <li [#if TAB="services"#] class="active"[#endif#]>
             <a href="?data_source=<#DATA_SOURCE#>&view_mode=edit_devices&id=<#ID#>&tab=services">Services</a>
          </li>
 
          <li [#if TAB="handles"#] class="active"[#endif#]>
-            <a href="?data_source=<#DATA_SOURCE#>&view_mode=edit_devices&id=<#ID#>&tab=handles">Services</a>
+            <a href="?data_source=<#DATA_SOURCE#>&view_mode=edit_devices&id=<#ID#>&tab=handles">Handles</a>
          </li>
 
 
-         <li [#if TAB="data"#] class="active"[#endif#]>
-            <a href="?data_source=<#DATA_SOURCE#>&view_mode=edit_devices&id=<#ID#>&tab=data"><#LANG_DATA#></a>
-         </li>
       </ul>
       &nbsp;
       <br/>
