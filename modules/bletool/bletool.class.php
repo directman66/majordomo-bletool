@@ -209,10 +209,12 @@ if ($this->view_mode=='clearall') {
 //$polling=$res['POLLING'];
 
 
-   $every=$res['POLLING'];
-   $tdev = time()-$res['UPDATEDTS'];
+   $every=$res[$i]['POLLING'];
+   $tdev = time()-$res[$i]['UPDATEDTS'];
    $has = $tdev>$every*60;
-   if ($tdev < 0) {
+   if ($tdev < 0) {$has=true;}
+
+if ($has){
 
 $this->getvalues($res[$i]['ID']);
 $res[$i]['UPDATED']=date('Y-m-d H:i:s');
