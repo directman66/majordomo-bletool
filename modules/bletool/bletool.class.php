@@ -160,8 +160,14 @@ sqlexec ("update ble_devices set VENDOR='$vend' where MAC='$mac'");
 
 
 
-if ($this->view_mode=='ping') {
+if ($this->view_mode=='restart') {
 //  $this->pingall();
+
+setGlobal('cycle_bletoolAutoRestart','1');	 	 
+setGlobal('cycle_bletoolControl','restart'); 
+
+
+   $this->redirect("?");
 }
 
 
@@ -218,7 +224,7 @@ else {$tdev = time()-1000;}
 
    if ($tdev < 0) {$has=true;}
 
-debmes('tdev: '.$tdev.", every:".$every." UPDATEDTS:".$res[$i]['UPDATEDTS']." has:".$has." id:".$res[$i]['ID']." ".$res[$i]['TITLE'], 'bletool');
+debmes('tdev: '.$tdev.", every:".$every." UPDATEDTS:".$res[$i]['UPDATEDTS']." has:".$has." id:".$res[$i]['ID']." title:".$res[$i]['TITLE'], 'bletool');
 
 
 if ($has){
