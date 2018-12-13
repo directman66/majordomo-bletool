@@ -1474,6 +1474,28 @@ if ($cmd_rec2['LINKED_OBJECT']!='' && $cmd_rec2['LINKED_PROPERTY']!='') {
 setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$newvalue ,array($this->name => '0'));
 }
 
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='fertility'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='fertility';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$newvalue=hexdec($bytes[10].$bytes[9]);
+	$cmd_rec2['VALUE']=$newvalue;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+if ($cmd_rec2['LINKED_OBJECT']!='' && $cmd_rec2['LINKED_PROPERTY']!='') {
+setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$newvalue ,array($this->name => '0'));
+}
+
+
 
 
 
