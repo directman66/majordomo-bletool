@@ -1,0 +1,58 @@
+how to get this info
+# gatttool -b <miband2-mac> -t random -I
+> connect
+> char-read-hnd 0x003
+Characteristic value/descriptor: 4d 49 20 42 61 6e 64 20 32
+> disconnect
+> quit
+mi band 2 name
+0x0003: 4d 49 20 42 61 6e 64 20 32
+
+text: 'MI Band 2'
+(?)
+0x000e: 39 65 30 36 31 35 37 34 64 39 33 34
+
+text: '9e061574d934'
+mi band 2 version (?)
+0x0010: 56 30 2e 31 2e 33 2e 32
+
+text: 'V0.1.3.2'
+0x0012: 56 31 2e 30 2e 30 2e 35 35
+
+text: 'V1.0.0.55'
+datetime info
+0x002e: e0 07 0b 1c 0d 22 10 01 00 00 0c
+
+00-01: (e007): year (2016) [little-endian]
+02: (0b): month (11)
+03: (1c): day (28)
+04: (0d): hour (13)
+05: (22): minute (34)
+06: (10): second (10)
+07: (01): ?
+08: (00): ?
+09: (00): ?
+10: (0c): ?
+battery info
+0x0043: 0f 61 00 e0 07 0a 1a 04 17 0a 20 e0 07 0b 1b 02 36 1e 20 6
+
+00: (0f) ?
+01: (61) battery level (96%)
+02: (00) ?separator?
+??? datetime
+03-04: (e007) year (2016) [little-endian]
+05: (0a) month (10)
+06: (1a) day (26)
+07: (04) hour (04)
+08: (17) minute (23)
+09: (0a) second (10)
+10: (20) ?separator?
+last charge datetime
+11-12: (e007) year (2016) [little-endian]
+13: (0b) month (11)
+14: (1b) day (27)
+15: (02) hour (02)
+16: (36) minute (54)
+17: (1e) second (30)
+18: (20) ?separator?
+19: ( 6) ?
