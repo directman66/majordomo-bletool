@@ -12,7 +12,7 @@
 $table_name='ble_devices';
 
 //echo $this->mode;
-if ((($this->tab=='infoedit')||($this->tab=='services')||($this->tab=='data')||($this->tab=='handles'))&&($this->mode=='')) {
+if ((($this->tab=='infoedit')||($this->tab=='services')||($this->tab=='data')||($this->tab=='handles')||($this->tab=='control'))&&($this->mode=='')) {
 
 
 $sql="SELECT * FROM $table_name WHERE ID='$id'";
