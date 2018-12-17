@@ -172,7 +172,48 @@ setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$answ ,arr
 
 
 
-if (hexdec($bytes[3])=='00')  {$mode="auto";} else {$mode="manual";}
+//if (hexdec($bytes[3])=='00') 
+
+switch (hexdec($bytes[3])) {
+
+	case "00":
+	$mode='auto';
+	break;
+
+	case "01":
+	$mode='manual';
+	break;
+
+	case "02":
+	$mode='vacation';
+	break;
+
+	case "04":
+	$mode='boost';
+	break;
+
+	case "08":
+	$mode='dst';
+	break;
+
+	case "10":
+	$mode='open_window';
+	break;
+
+	case "20":
+	$mode='locked';
+	break;
+
+
+	case "40":
+	$mode='unknow';
+	break;
+
+	case "80":
+	$mode='low_battery';
+	break;
+}
+
 
 	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='mode'";
 	$cmd_rec2 = SQLSelectOne($sql);
