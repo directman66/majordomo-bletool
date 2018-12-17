@@ -23,6 +23,11 @@ $out['TITLE']=$rec['TITLE'];
 $out['MAC']=$rec['MAC'];
 }
 
+//echo "<br>";
+//echo '$this->tab:'.  $this->tab;
+//echo "<br>";
+//echo '$this->mode:'.  $this->mode;
+
  
 if (($this->tab=='infoedit')&&($this->mode=='update')) {
 
@@ -34,20 +39,16 @@ $rec=SQLSelectOne($sql);
   //updating '<%LANG_TITLE%>' (varchar, required)
    global $title;
    $rec['TITLE']=$title;
-   if ($rec['TITLE']=='') {
-    $out['ERR_TITLE']=1;
-    $ok=0;
-   }
+
    global $type;
    $rec['TYPE']=$type;
-   if ($rec['TYPE']=='') {
-    $out['ERR_TYPE']=1;
-    $ok=0;
-   }
+  
+   global $polling;
+   $rec['POLLING']=$polling;
+  
 
     if ($ok=1)
     SQLUpdate('ble_devices', $rec);
-
 }
 
 
@@ -156,12 +157,12 @@ $out['PROPERTIES']=$properties;
       SQLUpdate('ble_commands', $properties[$i]);
       $old_linked_object=$properties[$i]['LINKED_OBJECT'];
       $old_linked_property=$properties[$i]['LINKED_PROPERTY'];
-//╨б╤У╨а╥С╨а┬░╨а┬╗╨а┬╡╨а╨Е╨а╤С╨а┬╡ linked
+//тХи╨▒тХд╨гтХи╨░тХе╨бтХи╨░тФмтЦСтХи╨░тФмтХЧтХи╨░тФмтХбтХи╨░тХи╨ХтХи╨░тХд╨бтХи╨░тФмтХб linked
       if ($old_linked_object && $old_linked_object!=$properties[$i]['LINKED_OBJECT'] && $old_linked_property && $old_linked_property!=$properties[$i]['LINKED_PROPERTY']) {
        removeLinkedProperty($old_linked_object, $old_linked_property, $this->name);
       }
      }///update
-//╨а╥С╨а╤Х╨а┬▒╨а┬░╨а╨Ж╨а┬╗╨а┬╡╨а╨Е╨а╤С╨а┬╡ linked
+//тХи╨░тХе╨бтХи╨░тХд╨етХи╨░тФмтЦТтХи╨░тФмтЦСтХи╨░тХи╨ЦтХи╨░тФмтХЧтХи╨░тФмтХбтХи╨░тХи╨ХтХи╨░тХд╨бтХи╨░тФмтХб linked
        if ($properties[$i]['LINKED_OBJECT'] && $properties[$i]['LINKED_PROPERTY']) {
            addLinkedProperty($properties[$i]['LINKED_OBJECT'], $properties[$i]['LINKED_PROPERTY'], $this->name);
        }
