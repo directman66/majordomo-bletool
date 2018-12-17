@@ -56,10 +56,19 @@
             <a href="?data_source=<#DATA_SOURCE#>&view_mode=edit_devices&id=<#ID#>&tab=data"><#LANG_DATA#></a>
          </li>
 
+[#if TYPE="eQ-3-radiator-thermostat"#]
+
+         <li [#if TAB="control"#] class="active"[#endif#]>
+            <a href="?data_source=<#DATA_SOURCE#>&view_mode=edit_devices&id=<#ID#>&tab=control">Control</a>
+         </li>
+
+[#endif#]
 
          <li [#if TAB="services"#] class="active"[#endif#]>
             <a href="?data_source=<#DATA_SOURCE#>&view_mode=edit_devices&id=<#ID#>&tab=services">Services</a>
          </li>
+
+
 
          <li [#if TAB="handles"#] class="active"[#endif#]>
             <a href="?data_source=<#DATA_SOURCE#>&view_mode=edit_devices&id=<#ID#>&tab=handles">Handles</a>
@@ -89,6 +98,10 @@
    
    [#if TAB="data"#]
       [#inc devices_edit_data.html#]
+   [#endif TAB#]
+
+   [#if TAB="control"#]
+      [#inc devices_edit_control.html#]
    [#endif TAB#]
 
 
