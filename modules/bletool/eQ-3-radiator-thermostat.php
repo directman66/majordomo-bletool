@@ -401,3 +401,4 @@ if (hexdec($bytes[8])=='0')  {$lb="false";} else {$lb="true";}
 $answ=$this->gethandlevalue($id,'0x0411', '04');
 */
 
+
