@@ -80,9 +80,9 @@ setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$newvalue 
 }
 
 
-	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='hudimity'";
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='humidity'";
 	$cmd_rec2 = SQLSelectOne($sql);
-	$cmd_rec2['TITLE']='hudimity';
+	$cmd_rec2['TITLE']='humidity';
 	$cmd_rec2['DEVICE_ID']=$id;
 //	$newvalue=hex2bin(str_replace(' ','',$answ));
 //	$newvalue=(str_replace(' ','',$answ));
