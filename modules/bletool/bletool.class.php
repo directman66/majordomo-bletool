@@ -292,6 +292,7 @@ file_put_contents($file, $debug);
 		$cmd_rec['VENDOR']=$vendor;
 $macc=strtoupper($mac);
                if (substr($macc,0,8) == 'C4:7C:8D') {$cmd_rec['TYPE']='mi-flora-plant';}
+               if (substr($macc,0,8) == '4C:65:A8') {$cmd_rec['TYPE']='xiaomi-smart-thermostat';}
                if (substr($macc,0,8) == '00:1A:22') {$cmd_rec['TYPE']='eQ-3-radiator-thermostat';}
                if (substr($macc,0,8) == 'F8:AF:0F ') {$cmd_rec['TYPE']='mi-band-2';}
                if (substr($macc,0,8) == '58:80:3С ') {$cmd_rec['TYPE']='amazfit-stratos';}
@@ -790,9 +791,16 @@ break;
 break;
    case "mi-flora-plant":
   require(DIR_MODULES.$this->name.'/mi-flora-plant.php');
-
 //	}}
 break;
+
+   case "xiaomi-smart-thermostat":
+  require(DIR_MODULES.$this->name.'/xiaomi-smart-thermostat.php');
+//	}}
+break;
+
+
+	
 
 }
 
@@ -847,6 +855,13 @@ return $val[1];
 
  function resethci() {
 
+
+$cmd='sudo killall gatttool';
+$answ=shell_exec($cmd);
+$debug = file_get_contents($file);
+$debug.= $cmd.":".$answ."<br>\n";
+
+
 $cmd='sudo hciconfig hci0 reset';
 $answ=shell_exec($cmd);
 
@@ -868,6 +883,9 @@ $debug.= $cmd.":".$answ."<br>\n";
 
 
 sleep(1);
+
+
+
 
 
 }
@@ -997,6 +1015,111 @@ $i=$i+1;
 //echo "<br>";
 return  $value;
 }
+
+
+function getrawmithermostat($mac) {
+//set_time_limit(10);
+//ob_implicit_flush(true);
+
+
+$this->resethci();
+
+
+
+$state=0;
+
+//$exe_command = 'ping google.com';
+//$exe_command = 'gatttool --device=c4:7c:8d:63:71:c8  -I';
+//$exe_command = 'gatttool -t random -b --device=c4:7c:8d:63:71:c8  -I';
+$exe_command = 'gatttool -t random  -I';
+
+//sg('test.mif',$exe_command);
+//$exe_command = 'gatttool -I';
+//$exe_command = 'gatttool ';
+//$exe_command = 'sudo timeout -s INT 30s hcitool lescan';
+
+
+$descriptorspec = array(
+    0 => array("pipe", "r"),  // stdin
+    1 => array("pipe", "w"),  // stdout -> we use this
+    2 => array("pipe", "w")   // stderr 
+);
+$i=0;
+$s=0;
+$process = proc_open($exe_command, $descriptorspec, $pipes);
+
+if (is_resource($process))
+{
+
+
+
+    while( ! feof($pipes[1]))
+  {
+
+if ($state==0) {
+// echo $i.' send conect:';
+
+fputs($pipes[0], "connect $mac"."\n");
+sleep(2);
+}
+
+if ($state==1&&$s==0) { 
+//echo $i.' send 0x33 A01F:';
+fputs($pipes[0], 'char-write-req 0x0010 0100'."\n");
+sleep(3);
+$s=$s+1;
+//$state=2;
+}
+
+if ($state==12) { 
+fputs($pipes[0], 'char-read-hnd 0x35'."\n");
+sleep(1);
+}
+
+
+if ($state==3) { 
+//echo $i.' send exit:';
+  fputs($pipes[0], 'exit'."\n");
+}
+
+//fputs($pipes[0], 'help'."\n");
+//}
+
+
+//        fputs($pipes[0], 'char-read-hnd 0x35'."\n");
+
+        $return_message = fgets($pipes[1], 1024);
+  //      $return_message2 = fgets($pipes[2], 1024);
+        if (strlen($return_message) == 0) break;
+      if ($i>50) break;
+
+//echo $i." state:".$state." ".$return_message.'<br />';
+if (strpos($return_message, 'Connection successful')>0) $state=1;
+if (strpos($return_message, 'Characteristic value was written successfully')>0) $state=2;
+
+if (strpos($return_message, 'Notification handle')>0)
+{ $state=3; 
+
+$value=explode(":",
+
+substr($return_message,strpos($return_message, 'Notification handle'))
+)[1];
+//echo "value: ".$value."<br>";
+ }
+
+if (strpos($return_message, 'Disconnected')>0) $state=3;
+//        ob_flush();
+//        flush();
+$i=$i+1;
+
+    }
+//sleep(1);
+}
+//echo "<br>";
+return  $value;
+}
+
+
 
 
 
