@@ -64,7 +64,8 @@ setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$newvalue 
 //	$newvalue=hex2bin(str_replace(' ','',$answ));
 //	$newvalue=(str_replace(' ','',$answ));
         $newvalue=hex2bin($bytes[1]).hex2bin($bytes[2]).hex2bin($bytes[3]).hex2bin($bytes[4]).hex2bin($bytes[5]).hex2bin($bytes[6]).hex2bin($bytes[7]).hex2bin($bytes[8]).hex2bin($bytes[9]).hex2bin($bytes[10]).hex2bin($bytes[11]).hex2bin($bytes[12]).hex2bin($bytes[13]).hex2bin($bytes[14]);
-	$cmd_rec2['VALUE']=explode("=",explode(" ",$newvalue)[0])[1];
+	$newvalue=explode("=",explode(" ",$newvalue)[0])[1];
+	$cmd_rec2['VALUE']=$newvalue;
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
 	if (!$cmd_rec2['ID']) 
@@ -87,7 +88,8 @@ setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$newvalue 
 //	$newvalue=hex2bin(str_replace(' ','',$answ));
 //	$newvalue=(str_replace(' ','',$answ));
         $newvalue=hex2bin($bytes[1]).hex2bin($bytes[2]).hex2bin($bytes[3]).hex2bin($bytes[4]).hex2bin($bytes[5]).hex2bin($bytes[6]).hex2bin($bytes[7]).hex2bin($bytes[8]).hex2bin($bytes[9]).hex2bin($bytes[10]).hex2bin($bytes[11]).hex2bin($bytes[12]).hex2bin($bytes[13]).hex2bin($bytes[14]);
-	$cmd_rec2['VALUE']=explode("=",explode(" ",$newvalue)[1])[1];
+        $newvalue=explode("=",explode(" ",$newvalue)[1])[1];
+	$cmd_rec2['VALUE']=$newvalue;
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
 	if (!$cmd_rec2['ID']) 
