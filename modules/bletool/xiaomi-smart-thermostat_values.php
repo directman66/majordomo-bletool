@@ -91,6 +91,8 @@ setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$newvalue 
         $newvalue=explode("=",explode(" ",$newvalue)[1])[1];
 	$cmd_rec2['VALUE']=$newvalue;
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+        debmes($cmd_rec2, 'bletool');
+
 
 	if (!$cmd_rec2['ID']) 
 	{
