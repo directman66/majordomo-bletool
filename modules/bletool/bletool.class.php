@@ -199,6 +199,62 @@ $this->redirect("?view_mode=edit_devices&id=".$deviceid."&tab=control");
 }	
 
 
+if ($this->view_mode=='setauto') {
+$deviceid=$this->id;
+debmes('setauto:'.$this->view_mode,'bletool');
+debmes('deviceid:'.$deviceid,'bletool');
+$mode='auto';
+
+$mac=SQLSelectOne("select * from ble_devices where ID='".$deviceid."'")['MAC'];
+
+$this->seteq3mode($mac, $mode, $deviceid); 
+$this->redirect("?view_mode=edit_devices&id=".$deviceid."&tab=control");
+
+}	
+
+if ($this->view_mode=='setmanual') {
+$deviceid=$this->id;
+debmes('setauto:'.$this->view_mode,'bletool');
+debmes('deviceid:'.$deviceid,'bletool');
+$mode='manual';
+
+$mac=SQLSelectOne("select * from ble_devices where ID='".$deviceid."'")['MAC'];
+
+$this->seteq3mode($mac, $mode, $deviceid); 
+$this->redirect("?view_mode=edit_devices&id=".$deviceid."&tab=control");
+
+}	
+
+if ($this->view_mode=='switchecom') {
+$deviceid=$this->id;
+debmes('setauto:'.$this->view_mode,'bletool');
+debmes('deviceid:'.$deviceid,'bletool');
+$mode='eco' ;
+
+$mac=SQLSelectOne("select * from ble_devices where ID='".$deviceid."'")['MAC'];
+
+$this->seteq3mode($mac, $mode, $deviceid); 
+$this->redirect("?view_mode=edit_devices&id=".$deviceid."&tab=control");
+
+}	
+
+if ($this->view_mode=='switchcomfort') {
+$deviceid=$this->id;
+debmes('setauto:'.$this->view_mode,'bletool');
+debmes('deviceid:'.$deviceid,'bletool');
+$mode='comfort' ;
+
+$mac=SQLSelectOne("select * from ble_devices where ID='".$deviceid."'")['MAC'];
+
+$this->seteq3mode($mac, $mode, $deviceid); 
+$this->redirect("?view_mode=edit_devices&id=".$deviceid."&tab=control");
+
+}	
+
+
+
+
+
 
 
 
@@ -1277,6 +1333,126 @@ return  $value;
 
 
 }
+//////////////////////////////////
+//////////////////////////////////
+//////////////////////////////////
+//////////////////////////////////
+//////////////////////////////////
+function seteq3mode($mac, $mode, $id) {
+
+
+    debmes('Вызвали seteq3mode устройству  mac:'.$mac.' тип. уст:'.$tip. 'mode '.$mode, 'bletool');
+
+//set_time_limit(10);
+//ob_implicit_flush(true);
+
+$this->resethci();
+
+
+
+$state=0;
+
+
+$exe_command = 'gatttool -t random  -I';
+
+
+$descriptorspec = array(
+    0 => array("pipe", "r"),  // stdin
+    1 => array("pipe", "w"),  // stdout -> we use this
+    2 => array("pipe", "w")   // stderr 
+);
+$i=0;
+$s=0;
+$process = proc_open($exe_command, $descriptorspec, $pipes);
+
+if (is_resource($process))
+{
+    while( ! feof($pipes[1]))
+  {
+debmes('state '.$state, 'bletool');
+if ($state==0) {
+
+
+fputs($pipes[0], "connect $mac"."\n");
+sleep(2);
+}
+
+if ($state==1&&$s==0) { 
+//echo $i.' send 0x33 A01F:';
+//$tt=dechex($targettemp*2);
+if ($mode=='auto' ) {$tt='4000';}
+if ($mode=='manual' ) {$tt='4040';}
+//if ($mode=='vacation' ) {$tt='40'}
+if ($mode=='eco' ) {$tt='44';}
+if ($mode=='comfort' ) {$tt='43';}
+
+fputs($pipes[0], 'char-write-req 0x0411 '.$tt."\n");
+sleep(3);
+$s=$s+1;
+//$state=2;
+}
+
+if ($state==12) { 
+fputs($pipes[0], 'char-read-hnd 0x35'."\n");
+sleep(1);
+}
+
+
+if ($state==3) { 
+//echo $i.' send exit:';
+  fputs($pipes[0], 'exit'."\n");
+}
+
+//fputs($pipes[0], 'help'."\n");
+//}
+
+
+//        fputs($pipes[0], 'char-read-hnd 0x35'."\n");
+
+        $return_message = fgets($pipes[1], 1024);
+  //      $return_message2 = fgets($pipes[2], 1024);
+        if (strlen($return_message) == 0) break;
+      if ($i>50) break;
+
+//echo $i." state:".$state." ".$return_message.'<br />';
+if (strpos($return_message, 'Connection successful')>0) $state=1;
+if (strpos($return_message, 'Characteristic value was written successfully')>0) $state=2;
+
+if (strpos($return_message, 'Notification handle')>0)
+{ $state=3; 
+
+$value=explode(":",substr($return_message,strpos($return_message, 'Notification handle')))[1];
+//echo "value: ".$value."<br>";
+ }
+
+if (strpos($return_message, 'Disconnected')>0) $state=3;
+//        ob_flush();
+//        flush();
+
+
+
+debmes('newstate '.$state, 'bletool');
+
+$i=$i+1;
+
+    }
+//sleep(1);
+}
+
+debmes('получен ответ '.$value, 'bletool');
+//$this->extractanswereq3($value, $id);
+
+
+//echo "<br>";
+return  $value;
+
+
+
+}
+/////////////////////////////////
+/////////////////////////////////
+/////////////////////////////////
+
 /////////////////////////////////
 /////////////////////////////////
 /////////////////////////////////
