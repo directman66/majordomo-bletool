@@ -156,6 +156,48 @@ sqlexec ("update ble_devices set VENDOR='$vend' where MAC='$mac'");
    $this->redirect("?&view_mode=edit_devices&id=".$this->id."&tab=data");
 }	
 
+ if ($this->view_mode=='getinfo') {
+    $this->getinfo($this->id);
+   $this->redirect("?&view_mode=edit_devices&id=".$this->id."&tab=data");
+}	
+
+
+
+
+ if ($this->view_mode=='set_target') {
+
+//$deviceid==$_REQUEST['id'];
+$deviceid=$_POST['id'];
+//$targettemp=$_REQUEST['targettemp'];
+global $targettemp;
+//$selectmode=$_REQUEST['selectmode'];
+//$setpointtemp=$_REQUEST['setpointtemp'];
+
+global $selectmode;
+global $setpointtemp;
+
+
+
+debmes('view_mode:'.$this->view_mode,'bletool');
+
+debmes('targettemp:'.$targettemp,'bletool');
+debmes('deviceid:'.$deviceid,'bletool');
+debmes($_REQUEST,'bletool');
+debmes($_POST,'bletool');
+
+
+$mac=SQLSelectOne("select * from ble_devices where ID='".$deviceid."'")['MAC'];
+
+$this->settargettempeq3($mac, $targettemp); 
+
+
+//$this->redirect("?view_mode=edit_devices&id=".$deviceid."&tab=data");
+$this->redirect("?view_mode=edit_devices&id=".$deviceid."&tab=control");
+
+//   $this->redirect("?&view_mode=edit_devices&id=".$this->id."&tab=data");
+}	
+
+
 
 
 
@@ -780,41 +822,90 @@ $this->resethci();
 switch ($type) {
 
    case "eQ-3-radiator-thermostat":
-  require(DIR_MODULES.$this->name.'/eQ-3-radiator-thermostat.php');
+  require(DIR_MODULES.$this->name.'/eQ-3-radiator-thermostat_values.php');
 break;
    case "mi-band-1s":
-  require(DIR_MODULES.$this->name.'/eQ-3-radiator-thermostat.php');
+//  require(DIR_MODULES.$this->name.'/eQ-3-radiator-thermostat.php');
 break;
 
    case "mi-band-2":
-  require(DIR_MODULES.$this->name.'/mi-band-2.php');
+//  require(DIR_MODULES.$this->name.'/mi-band-2.php');
 break;
    case "mi-flora-plant":
-  require(DIR_MODULES.$this->name.'/mi-flora-plant.php');
+  require(DIR_MODULES.$this->name.'/mi-flora-plant_values.php');
 //	}}
 break;
 
    case "xiaomi-smart-thermostat":
-  require(DIR_MODULES.$this->name.'/xiaomi-smart-thermostat.php');
+  require(DIR_MODULES.$this->name.'/xiaomi-smart-thermostat_values.php');
 //	}}
 break;
-
-
 	
 
 }
 
 
+}
+
+
+ function getinfo($id) {
+
+$cmd_rec = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'");
+$id=$cmd_rec['ID'];
+$mac=$cmd_rec['MAC'];
+$type=$cmd_rec['TYPE'];
+
+$sql='update ble_devices set UPDATED=\''.date('Y-m-d H:i:s')."',  UPDATEDTS='".time()."' where ID=".$id;
+sqlexec($sql);
+debmes($sql, 'bletool');
 
 
 
-//return print_r($data);
+
+$file = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
+//echo php_uname();
+//echo PHP_OS;
+$debug = file_get_contents($file);
+$debug .= "get values from $mac $type run at ".gg('sysdate').' '.gg('timenow')."<br>\n";
+file_put_contents($file, $debug);
 
 
+//echo "СЌС‚Рѕ Р»РёРЅСѓСЃ";
+//$cmd='nmap -sn 192.168.1.0/24';
+//$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
+$data = array();
 
+$this->resethci();
+
+switch ($type) {
+
+   case "eQ-3-radiator-thermostat":
+  require(DIR_MODULES.$this->name.'/eQ-3-radiator-thermostat_info.php');
+break;
+   case "mi-band-1s":
+//  require(DIR_MODULES.$this->name.'/eQ-3-radiator-thermostat.php');
+break;
+
+   case "mi-band-2":
+//  require(DIR_MODULES.$this->name.'/mi-band-2.php');
+break;
+   case "mi-flora-plant":
+  require(DIR_MODULES.$this->name.'/mi-flora-plant_info.php');
+//	}}
+break;
+
+   case "xiaomi-smart-thermostat":
+  require(DIR_MODULES.$this->name.'/xiaomi-smart-thermostat_values.php');
+//	}}
+break;
+	
+
+}
 
 
 }
+
+
 
 
 
@@ -1016,6 +1107,108 @@ $i=$i+1;
 return  $value;
 }
 
+//////////////////////////////////
+//////////////////////////////////
+//////////////////////////////////
+//////////////////////////////////
+//////////////////////////////////
+function settargettempeq3($mac, $targettemp) {
+
+//set_time_limit(10);
+//ob_implicit_flush(true);
+
+$this->resethci();
+
+
+
+$state=0;
+$exe_command = 'gatttool -t random  -I';
+
+
+$descriptorspec = array(
+    0 => array("pipe", "r"),  // stdin
+    1 => array("pipe", "w"),  // stdout -> we use this
+    2 => array("pipe", "w")   // stderr 
+);
+$i=0;
+$s=0;
+$process = proc_open($exe_command, $descriptorspec, $pipes);
+
+if (is_resource($process))
+{
+    while( ! feof($pipes[1]))
+  {
+
+if ($state==0) {
+
+
+fputs($pipes[0], "connect $mac"."\n");
+sleep(2);
+}
+
+if ($state==1&&$s==0) { 
+//echo $i.' send 0x33 A01F:';
+$tt=dechex($targettemp*2);
+fputs($pipes[0], 'char-write-req 0x0411 41'.$tt."\n");
+sleep(3);
+$s=$s+1;
+//$state=2;
+}
+
+if ($state==12) { 
+fputs($pipes[0], 'char-read-hnd 0x35'."\n");
+sleep(1);
+}
+
+
+if ($state==3) { 
+//echo $i.' send exit:';
+  fputs($pipes[0], 'exit'."\n");
+}
+
+//fputs($pipes[0], 'help'."\n");
+//}
+
+
+//        fputs($pipes[0], 'char-read-hnd 0x35'."\n");
+
+        $return_message = fgets($pipes[1], 1024);
+  //      $return_message2 = fgets($pipes[2], 1024);
+        if (strlen($return_message) == 0) break;
+      if ($i>50) break;
+
+//echo $i." state:".$state." ".$return_message.'<br />';
+if (strpos($return_message, 'Connection successful')>0) $state=1;
+if (strpos($return_message, 'Characteristic value was written successfully')>0) $state=2;
+
+if (strpos($return_message, 'Notification handle')>0)
+{ $state=3; 
+
+$value=explode(":",
+
+substr($return_message,strpos($return_message, 'Notification handle'))
+)[1];
+//echo "value: ".$value."<br>";
+ }
+
+if (strpos($return_message, 'Disconnected')>0) $state=3;
+//        ob_flush();
+//        flush();
+$i=$i+1;
+
+    }
+//sleep(1);
+}
+//echo "<br>";
+return  $value;
+
+
+
+}
+//////////////////////////////////
+//////////////////////////////////
+//////////////////////////////////
+//////////////////////////////////
 
 function getrawmithermostat($mac) {
 //set_time_limit(10);
