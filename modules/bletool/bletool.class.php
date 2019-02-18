@@ -152,6 +152,7 @@ sqlexec ("update ble_devices set VENDOR='$vend' where MAC='$mac'");
 
 
  if ($this->view_mode=='getvalues') {
+debmes('вызываю getvalues', 'bletool');
     $this->getvalues($this->id);
    $this->redirect("?&view_mode=edit_devices&id=".$this->id."&tab=data");
 }	
@@ -188,7 +189,7 @@ debmes($_POST,'bletool');
 
 $mac=SQLSelectOne("select * from ble_devices where ID='".$deviceid."'")['MAC'];
 
-$this->settargettempeq3($mac, $targettemp); 
+$this->settargettempeq3($mac, $targettemp, $deviceid); 
 
 
 //$this->redirect("?view_mode=edit_devices&id=".$deviceid."&tab=data");
@@ -282,7 +283,7 @@ SQLUpdate('ble_devices', $res[$i]);
 
  function discover() {
 
-$file = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
+$file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
 //echo php_uname();
 //echo PHP_OS;
 $debug = file_get_contents($file);
@@ -292,7 +293,7 @@ file_put_contents($file, $debug);
 
 
 if (substr(php_uname(),0,5)=='Linux')  {
-//echo "СЌС‚Рѕ Р»РёРЅСѓСЃ";
+//echo "это линус";
 //$cmd='nmap -sn 192.168.1.0/24';
 //$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
 $data = array();
@@ -337,7 +338,7 @@ $macc=strtoupper($mac);
                if (substr($macc,0,8) == '4C:65:A8') {$cmd_rec['TYPE']='xiaomi-smart-thermostat';}
                if (substr($macc,0,8) == '00:1A:22') {$cmd_rec['TYPE']='eQ-3-radiator-thermostat';}
                if (substr($macc,0,8) == 'F8:AF:0F ') {$cmd_rec['TYPE']='mi-band-2';}
-               if (substr($macc,0,8) == '58:80:3РЎ ') {$cmd_rec['TYPE']='amazfit-stratos';}
+               if (substr($macc,0,8) == '58:80:3С ') {$cmd_rec['TYPE']='amazfit-stratos';}
 
 
 
@@ -353,12 +354,63 @@ SQLUpdate('ble_devices', $cmd_rec);
 }}}} 
 else 
  {
-//echo "СЌС‚Рѕ РІРёРЅРґРѕРІСЃ";
+//echo "это виндовс";
 //$cmd='nmap -sn 192.168.1.0/24';
 echo "linux system only";
 }
 
 }
+
+
+ function propertySetHandle($object, $property, $value) {
+
+
+debmes('Сработал propertySetHandle object:'.$object." property:". $property." value:". $value,  'bletool');
+$sql="SELECT * FROM ble_commands WHERE LINKED_OBJECT LIKE '".DBSafe($object)."' AND LINKED_PROPERTY LIKE '".DBSafe($property)."'";
+debmes($sql, 'bletool');
+
+
+   $bleprop=SQLSelect($sql);
+   $total=count($bleprop);
+
+debmes($object.":". $property.":". $value. ' найдено результатов '. $total, 'bletool');
+
+   if ($total) {
+    for($i=0;$i<$total;$i++) {
+
+//проверяем тип устройства
+
+$rec=SQLSelectOne("select * from ble_devices where ID='".$bleprop[$i]['DEVICE_ID']."'");
+
+$tip=$rec['TYPE'];
+$mac=$rec['MAC'];
+$changedprop=$bleprop[$i]['TITLE'];
+
+     debmes('DEVICE_ID:'.$bleprop[$i]['DEVICE_ID']. '   mac:'.$mac.' ���. ���:'.$tip. ' propertiID:'. $bleprop[$i]['ID']."  value:".$value, 'bletool');
+
+if ($tip=='eQ-3-radiator-thermostat'&&$changedprop=='target_t') {
+echo $tip;
+
+     debmes('Отправляем устройству  mac:'.$mac.' тип. уст:'.$tip. 'новое значение '.$changedprop.':'.$value, 'bletool');
+$this->settargettempeq3($mac, $value, $bleprop[$i]['DEVICE_ID']);
+}
+
+
+
+
+//нужно проверить, может ли свойство  управляться
+
+
+
+
+    }
+   }  
+ }
+
+
+
+
+
 
 
  function clearall() {
@@ -434,7 +486,7 @@ $this->edit_devices($out, $this->id);
  if ($this->view_mode=='') {
 $this->searchdevices($out);
 
-$filename = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
+$filename = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
 
 $a=shell_exec("tail -n 100 $filename");
 ///$a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
@@ -446,7 +498,7 @@ $out['DEBUG']=$a;
  if ($this->tab=='info') {
 //$this->searchdevices($out);
 
-$filename = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
+$filename = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
 
 //$a=shell_exec("sudo bluetoothctl");
 $a=shell_exec("hciconfig");
@@ -455,14 +507,14 @@ $a=shell_exec("hciconfig");
 $a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
 $out['bluetoothctl']=$a;
 //////////
-$filename = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
+$filename = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
 $a=shell_exec("hcitool dev");
 $a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
 $out['hcitooldev']=$a;
 
 
 //////////
-$filename = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
+$filename = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
 $a=shell_exec("sudo hcitool con");
 $a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
 $out['con']=$a;
@@ -587,12 +639,14 @@ unlink(ROOT."cms/cached/bleutils");
 
  function getservices($id) {
 
+    debmes('Вызвали getservices устройству  id:'.$id,'bletool');
+
 $cmd_rec = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'");
 $id=$cmd_rec['ID'];
 $mac=$cmd_rec['MAC'];
 
 
-$file = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
+$file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
 //echo php_uname();
 //echo PHP_OS;
 $debug = file_get_contents($file);
@@ -600,7 +654,7 @@ $debug .= "get info about $mac run at ".gg('sysdate').' '.gg('timenow')."<br>\n"
 file_put_contents($file, $debug);
 
 
-//echo "СЌС‚Рѕ Р»РёРЅСѓСЃ";
+//echo "это линус";
 //$cmd='nmap -sn 192.168.1.0/24';
 //$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
 
@@ -681,12 +735,14 @@ SQLUpdate('ble_services', $cmd_rec2);
 
  function gethandles($id) {
 
+    debmes('Вызвали gethandles устройству  id:'.$id,'bletool');
+
 $cmd_rec = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'");
 $id=$cmd_rec['ID'];
 $mac=$cmd_rec['MAC'];
 
 
-$file = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
+$file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
 //echo php_uname();
 //echo PHP_OS;
 $debug = file_get_contents($file);
@@ -695,7 +751,7 @@ $debug .= "get handles from  $mac run at ".gg('sysdate').' '.gg('timenow')."<br>
 file_put_contents($file, $debug);
 
 
-//echo "СЌС‚Рѕ Р»РёРЅСѓСЃ";
+//echo "это линус";
 //$cmd='nmap -sn 192.168.1.0/24';
 //$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
 
@@ -789,6 +845,8 @@ SQLUpdate('ble_handles', $cmd_rec2);
 
  function getvalues($id) {
 
+ debmes('Вызвали getvalues id:'.$id, 'bletool');
+
 $cmd_rec = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'");
 $id=$cmd_rec['ID'];
 $mac=$cmd_rec['MAC'];
@@ -804,15 +862,13 @@ debmes($sql, 'bletool');
 
 
 
-$file = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
-//echo php_uname();
-//echo PHP_OS;
-$debug = file_get_contents($file);
-$debug .= "get values from $mac $type run at ".gg('sysdate').' '.gg('timenow')."<br>\n";
-file_put_contents($file, $debug);
+
+debmes("get values from $mac $type run at ".gg('sysdate').' '.gg('timenow')."<br>", 'bletool');
+
+//file_put_contents($file, $debug);
 
 
-//echo "СЌС‚Рѕ Р»РёРЅСѓСЃ";
+//echo "это линус";
 //$cmd='nmap -sn 192.168.1.0/24';
 //$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
 $data = array();
@@ -850,6 +906,7 @@ break;
 
  function getinfo($id) {
 
+ debmes('Вызвали getinfo id:'.$id, 'bletool');
 $cmd_rec = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'");
 $id=$cmd_rec['ID'];
 $mac=$cmd_rec['MAC'];
@@ -862,7 +919,7 @@ debmes($sql, 'bletool');
 
 
 
-$file = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
+$file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
 //echo php_uname();
 //echo PHP_OS;
 $debug = file_get_contents($file);
@@ -870,7 +927,7 @@ $debug .= "get values from $mac $type run at ".gg('sysdate').' '.gg('timenow')."
 file_put_contents($file, $debug);
 
 
-//echo "СЌС‚Рѕ Р»РёРЅСѓСЃ";
+//echo "это линус";
 //$cmd='nmap -sn 192.168.1.0/24';
 //$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
 $data = array();
@@ -911,10 +968,11 @@ break;
 
 
 /////////////////
-////РїРѕР»СѓС‡РµРЅРёРµ handle РґР»СЏ РІСЃРµС… СѓСЃС‚СЂРѕР№СЃС‚РІ
+////получение handle для всех устройств
 /////////////////
  function gethandlevalue($id,$handle,$a="00" ) {
-$file = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
+   debmes('Вызвали getvendor устройству  id:'.$id,'bletool');
+$file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
 $this->resethci();
 
 	$mac = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'")['MAC'];
@@ -941,7 +999,7 @@ return $val[1];
 }
 
 //////////////
-///СЃР±СЂРѕСЃ РґР»СЏ РІСЃРµС…
+///сброс для всех
 //////////////
 
  function resethci() {
@@ -983,9 +1041,11 @@ sleep(1);
 
 
 //////////////
-///РІРµРЅРґРѕСЂ
+///вендор
 //////////////
  function getvendor($mac) {
+
+    debmes('Вызвали getvendor устройству  mac:'.$mac,'bletool');
 
 //	$mac = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'")['MAC'];
 $url="http://macvendors.co/api/".$mac."/json";
@@ -1005,7 +1065,7 @@ return $vendor;
 
 
 //////////////
-///РїРѕР»СѓС‡РµРЅРёРµ raw РґР»СЏ mi plant
+///получение raw для mi plant
 //////////////
 function getrawmiflora($mac) {
 //set_time_limit(10);
@@ -1045,7 +1105,7 @@ if (is_resource($process))
 
     while( ! feof($pipes[1]))
   {
-
+debmes('state:'.$state, 'bletool');
 if ($state==0) { echo $i.' send conect:';
 
 fputs($pipes[0], "connect $mac"."\n");
@@ -1112,7 +1172,10 @@ return  $value;
 //////////////////////////////////
 //////////////////////////////////
 //////////////////////////////////
-function settargettempeq3($mac, $targettemp) {
+function settargettempeq3($mac, $targettemp, $id) {
+
+
+    debmes('Вызвали settargettempeq3 устройству  mac:'.$mac.' тип. уст:'.$tip. 'новое значение '.$targettemp, 'bletool');
 
 //set_time_limit(10);
 //ob_implicit_flush(true);
@@ -1122,6 +1185,8 @@ $this->resethci();
 
 
 $state=0;
+
+
 $exe_command = 'gatttool -t random  -I';
 
 
@@ -1138,7 +1203,7 @@ if (is_resource($process))
 {
     while( ! feof($pipes[1]))
   {
-
+debmes('state '.$state, 'bletool');
 if ($state==0) {
 
 
@@ -1184,33 +1249,365 @@ if (strpos($return_message, 'Characteristic value was written successfully')>0) 
 if (strpos($return_message, 'Notification handle')>0)
 { $state=3; 
 
-$value=explode(":",
-
-substr($return_message,strpos($return_message, 'Notification handle'))
-)[1];
+$value=explode(":",substr($return_message,strpos($return_message, 'Notification handle')))[1];
 //echo "value: ".$value."<br>";
  }
 
 if (strpos($return_message, 'Disconnected')>0) $state=3;
 //        ob_flush();
 //        flush();
+
+
+
+debmes('newstate '.$state, 'bletool');
+
 $i=$i+1;
 
     }
 //sleep(1);
 }
+
+debmes('получен ответ '.$value, 'bletool');
+$this->extractanswereq3($value, $id);
+
+
 //echo "<br>";
 return  $value;
 
 
 
 }
+/////////////////////////////////
+/////////////////////////////////
+/////////////////////////////////
+
+
+function extractanswereq3 ($message, $id){
+
+debmes('extractanswereq3: '.$message, 'bletool');
+
+$bytes=explode(" ",$message);
+
+
+
+      $data = str_pad(base_convert($bytes[3], 16, 2),8,"0",STR_PAD_LEFT);
+//debmes($bytes, 'bletool');
+debmes('data:'.$bytes[3].':'.$data, 'bletool');
+
+//09:52:20 0.07985800 data:09:00001001  - manual
+//                         08:00001000  - auto
+//                    data:0c:00001100  - auto boost
+//                            87654321
+//			      01234567	
+// 1:7 - manual/auto
+// 2:6 - vacation
+// 3:5 boost
+// 4:4 dst
+// 5:3 open window
+// 6:2 locked
+// 7:1 unknown
+// 8:0 low battery
+
+
+
+switch ($data[7]) {
+
+	case "0":
+	$mode='auto';
+	break;
+
+	case "1":
+	$mode='manual';
+	break;
+}
+
+switch ($data[6]) {
+
+	case "1":
+	$vacation='1';
+	break;
+
+	case "0":
+	$vacation='0';
+	break;
+}
+
+switch ($data[5]) {
+
+	case "1":
+	$boost='1';
+	break;
+
+	case "0":
+	$boost='0';
+	break;
+}
+
+switch ($data[4]) {
+
+	case "1":
+	$dst='1';
+	break;
+
+	case "0":
+	$dst='0';
+	break;
+}
+
+switch ($data[3]) {
+
+	case "1":
+	$ow='1';
+	break;
+
+	case "0":
+	$ow='1';
+	break;
+}
+
+switch ($data[0]) {
+
+	case "1":
+	$bat='1';
+	break;
+
+	case "0":
+	$bat='0';
+	break;
+}
+
+switch ($data[2]) {
+
+	case "1":
+	$locked='1';
+	break;
+
+	case "0":
+	$locked='0';
+	break;
+}
+
+
+
+
+
+
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='mode'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='mode';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=$mode;
+        debmes('mode:'.$mode, 'bletool');
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+
+if ($cmd_rec2['LINKED_OBJECT']!='' && $cmd_rec2['LINKED_PROPERTY']!='') {
+setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$mode ,array($this->name => '0'));
+}
+
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='open_window'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='open_window';
+	$cmd_rec2['DEVICE_ID']=$id;
+        debmes('open_window:'.$ow, 'bletool');
+	$cmd_rec2['VALUE']=$ow;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+
+if ($cmd_rec2['LINKED_OBJECT']!='' && $cmd_rec2['LINKED_PROPERTY']!='') {
+setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$ow ,array($this->name => '0'));
+}
+
+
+
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='dst'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='dst';
+        debmes('dst:'.$dst, 'bletool');
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=$dst;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+if ($cmd_rec2['LINKED_OBJECT']!='' && $cmd_rec2['LINKED_PROPERTY']!='') {
+setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$dst ,array($this->name => '0'));
+}
+
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='locked'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='locked';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=$locked;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+if ($cmd_rec2['LINKED_OBJECT']!='' && $cmd_rec2['LINKED_PROPERTY']!='') {
+setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$locked ,array($this->name => '0'));
+}
+
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='boost'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='boost';
+        debmes('boost:'.$boost, 'bletool');
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=$boost;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+if ($cmd_rec2['LINKED_OBJECT']!='' && $cmd_rec2['LINKED_PROPERTY']!='') {
+setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$boost ,array($this->name => '0'));
+}
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='lowbattery'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='lowbattery';
+        debmes('lowbattery:'.$bat, 'bletool');
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=$bat;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+if ($cmd_rec2['LINKED_OBJECT']!='' && $cmd_rec2['LINKED_PROPERTY']!='') {
+setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$bat,array($this->name => '0'));
+}
+
+
+
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='vacation'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='vacation';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$cmd_rec2['VALUE']=$vacation;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+       debmes('vacation:'.$vacation, 'bletool');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+
+if ($cmd_rec2['LINKED_OBJECT']!='' && $cmd_rec2['LINKED_PROPERTY']!='') {
+setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$vacation ,array($this->name => '0'));
+}
+
+
+
+
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='target_t'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='target_t';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$newvalue=hexdec($bytes[6])/2;
+        debmes('target_t:'.$newvalue, 'bletool');
+
+	$cmd_rec2['VALUE']=$newvalue;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+debmes($cmd_rec2, 'bletool');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+if ($cmd_rec2['LINKED_OBJECT']!='' && $cmd_rec2['LINKED_PROPERTY']!='') {
+setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$newvalue ,array($this->name => '0'));
+}
+
+
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='percentage'";
+	$cmd_rec2 = SQLSelectOne($sql);
+	$cmd_rec2['TITLE']='percentage';
+	$cmd_rec2['DEVICE_ID']=$id;
+	$newvalue=hexdec($bytes[4])/2;
+	$cmd_rec2['VALUE']=$newvalue;
+	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
+
+	if (!$cmd_rec2['ID']) 
+	{
+	//$cmd_rec['ONLINE']=$onlinest;
+	SQLInsert('ble_commands', $cmd_rec2);
+	} else {
+	SQLUpdate('ble_commands', $cmd_rec2);
+	}
+
+if ($cmd_rec2['LINKED_OBJECT']!='' && $cmd_rec2['LINKED_PROPERTY']!='') {
+setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$newvalue ,array($this->name => '0'));
+}
+
+
+
+
+
+
+
+}
+
 //////////////////////////////////
 //////////////////////////////////
 //////////////////////////////////
 //////////////////////////////////
 
 function getrawmithermostat($mac) {
+
+debmes('вызвали getrawmithermostat', 'bletool');
 //set_time_limit(10);
 //ob_implicit_flush(true);
 
@@ -1248,7 +1645,7 @@ if (is_resource($process))
 
     while( ! feof($pipes[1]))
   {
-
+debmes('state:'.$state, 'bletool');
 if ($state==0) {
 // echo $i.' send conect:';
 
@@ -1318,11 +1715,13 @@ return  $value;
 
 
 //////////////
-///РїРѕР»СѓС‡РµРЅРёРµ raw РґР»СЏ eq3
+///получение raw для eq3
 //////////////
 function getraweq3($mac, $handle, $a) {
 //set_time_limit(10);
 //ob_implicit_flush(true);
+
+ debmes('Вызвали getraweq3 устройству  mac:'.$mac.' handle:'.$handle. ' a: '.$a, 'bletool');
 
 
 $this->resethci();
@@ -1349,6 +1748,8 @@ if (is_resource($process))
 
     while( ! feof($pipes[1]))
   {
+
+debmes('state:'.$state, 'bletool');
 
 if ($state==0) {
 // echo $i.' send conect:';
@@ -1389,6 +1790,7 @@ if ($state==3) {
       if ($i>100) break;
 
 //echo $i." state:".$state." ".$return_message.'<br />';
+
 if (strpos($return_message, 'Connection successful')>0) $state=1;
 if (strpos($return_message, 'Characteristic value was written successfully')>0) $state=2;
 
@@ -1397,11 +1799,13 @@ if (strpos($return_message, 'Notification handle')>0)
 { $state=3; 
 $value=explode(":",substr($return_message,strpos($return_message, 'Notification handle')))[1];
 echo "value: ".$value."<br>";
+debmes('получен ответ '.$value, 'bletool');
+
  }
 
 if (strpos($return_message, 'Disconnected')>0) $state=3;
 
-
+debmes('newstate:'.$state, 'bletool');
 
 $i=$i+1;
 
