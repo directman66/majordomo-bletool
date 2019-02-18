@@ -10,7 +10,7 @@
 //Handle 0x0321 - The product name of the thermostat
 //
 //Encoded in ASCII, you must transform hex to ascii
-//Default value: вЂћCC-RT-BLEвЂњ
+//Default value: „CC-RT-BLE“
 //Get: char-read-hnd 321
 //Characteristic value/descriptor: 43 43 2d 52 54 2d 42 4c 45
 //Set: n/a
@@ -40,10 +40,10 @@ setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'], $newvalue
 
 
 
-//Handle 0x311 вЂ“ The vendor of the thermostat
+//Handle 0x311 – The vendor of the thermostat
 
 //Encoded in ASCII, you must transform hex to ascii
-//Default value: вЂћeq-3вЂњ
+//Default value: „eq-3“
 //Get: char-read-hnd 311
 //Characteristic value/descriptor: 65 71 2d 33
 //Set: n/a
@@ -439,9 +439,9 @@ setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$vacation 
 
 
 
-	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='current_t'";
+	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='target_t'";
 	$cmd_rec2 = SQLSelectOne($sql);
-	$cmd_rec2['TITLE']='current_t';
+	$cmd_rec2['TITLE']='target_t';
 	$cmd_rec2['DEVICE_ID']=$id;
 	$newvalue=hexdec($bytes[6])/2;
 	$cmd_rec2['VALUE']=$newvalue;
