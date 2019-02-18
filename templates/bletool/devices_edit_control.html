@@ -1,24 +1,44 @@
+<div class="form-group">
+<div>
 <a class="btn btn-default" href="?data_source=<#DATA_SOURCE#>&view_mode=setauto&tab=indata&id=[#ID#]">Set auto mode</a>
 <a class="btn btn-default" href="?data_source=<#DATA_SOURCE#>&view_mode=setmanual&tab=indata&id=[#ID#]">Set manual mode</a>
 <a class="btn btn-default" href="?data_source=<#DATA_SOURCE#>&view_mode=setvacation&tab=indata&id=[#ID#]">Set vacation mode</a>
-<hr>
+</div>
+<br>
+
+
+<div >
 <a class="btn btn-default" href="?data_source=<#DATA_SOURCE#>&view_mode=switchcomfort&tab=indata&id=[#ID#]">Switch to comfort temperature</a>
 <a class="btn btn-default" href="?data_source=<#DATA_SOURCE#>&view_mode=switcheco&tab=indata&id=[#ID#]">Switch to eco  temperature</a>
-<hr>
+</div>
+<br>
+<div >
 <a class="btn btn-default" href="?data_source=<#DATA_SOURCE#>&view_mode=seton&tab=indata&id=[#ID#]">Set thermostat on</a>
 <a class="btn btn-default" href="?data_source=<#DATA_SOURCE#>&view_mode=setoff&tab=indata&id=[#ID#]">Set thermostat off</a>
-<hr>
+</div>
+<br>
+<div >
 <a class="btn btn-default" href="?data_source=<#DATA_SOURCE#>&view_mode=booston&tab=indata&id=[#ID#]">Activate boost mode</a>
 <a class="btn btn-default" href="?data_source=<#DATA_SOURCE#>&view_mode=boostoff&tab=indata&id=[#ID#]">Stop boost mode</a>
+
+</div>
+</div>
+
 <hr>
 
 <form action="?" method="post" enctype="multipart/form-data" name="frmEdit" class="form-horizontal">
 	<fieldset>
 
 
-Target    t°:
-<input type="text"  name="target" value="[#TARGET#]" id="targer" size="2">
-<input type="submit" name="submit" value="Set target t" >
+<div class="form-group">
+<div>
+<label>	Target    t°:	</label>
+
+<input type="text"  name="targettemp" value="[#TARGET#]" id="target" size="2"  style="width: 60px;" >
+<input type="submit" name="submit" value="Set target t" class="btn btn-default" >
+
+
+
 <input type="hidden" name="id" value="<#ID#>">
 <input type="hidden" name="view_mode" value="set_target">
 <input type="hidden" name="edit_mode" value="<#EDIT_MODE#>">
@@ -28,28 +48,10 @@ Target    t°:
 	</fieldset>
 </form>
 
-<br>
-<form action="?" method="post" enctype="multipart/form-data" name="frmEdit" class="form-horizontal">
-	<fieldset>
-Comfort  t°:
-<input type="text"  name="comfort" value="[#COMFORT#]" id="comfort" size="2">
-<br>
-Econom  t°:
-<input type="text"  name="eco" value="[#ECO#]" id="eco" size="2">
+</div>
+<hr>
 
-<input type="submit" name="submit" value="Set comfort & eco" >
-<input type="hidden" name="id" value="<#ID#>">
-<input type="hidden" name="view_mode" value="set_target">
-<input type="hidden" name="edit_mode" value="<#EDIT_MODE#>">
-<input type="hidden" name="mode" value="update">
-<input type="hidden" name="data_source" value="<#DATA_SOURCE#>">
-<input type="hidden" name="tab" value="data">
-
-	</fieldset>
-</form>
-
-
- <a href="?data_source=<#DATA_SOURCE#>" class="btn btn-default "><#LANG_STRING_BACK#></a>
+ <a href="?data_source=<#DATA_SOURCE#>" class="btn btn-default"><#LANG_STRING_BACK#></a>
 
 
 
