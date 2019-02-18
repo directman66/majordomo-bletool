@@ -240,7 +240,7 @@ SQLUpdate('ble_devices', $res[$i]);
 
  function discover() {
 
-$file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
+$file = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
 //echo php_uname();
 //echo PHP_OS;
 $debug = file_get_contents($file);
@@ -250,7 +250,7 @@ file_put_contents($file, $debug);
 
 
 if (substr(php_uname(),0,5)=='Linux')  {
-//echo "это линус";
+//echo "СЌС‚Рѕ Р»РёРЅСѓСЃ";
 //$cmd='nmap -sn 192.168.1.0/24';
 //$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
 $data = array();
@@ -295,7 +295,7 @@ $macc=strtoupper($mac);
                if (substr($macc,0,8) == '4C:65:A8') {$cmd_rec['TYPE']='xiaomi-smart-thermostat';}
                if (substr($macc,0,8) == '00:1A:22') {$cmd_rec['TYPE']='eQ-3-radiator-thermostat';}
                if (substr($macc,0,8) == 'F8:AF:0F ') {$cmd_rec['TYPE']='mi-band-2';}
-               if (substr($macc,0,8) == '58:80:3С ') {$cmd_rec['TYPE']='amazfit-stratos';}
+               if (substr($macc,0,8) == '58:80:3РЎ ') {$cmd_rec['TYPE']='amazfit-stratos';}
 
 
 
@@ -311,7 +311,7 @@ SQLUpdate('ble_devices', $cmd_rec);
 }}}} 
 else 
  {
-//echo "это виндовс";
+//echo "СЌС‚Рѕ РІРёРЅРґРѕРІСЃ";
 //$cmd='nmap -sn 192.168.1.0/24';
 echo "linux system only";
 }
@@ -392,7 +392,7 @@ $this->edit_devices($out, $this->id);
  if ($this->view_mode=='') {
 $this->searchdevices($out);
 
-$filename = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
+$filename = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
 
 $a=shell_exec("tail -n 100 $filename");
 ///$a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
@@ -404,7 +404,7 @@ $out['DEBUG']=$a;
  if ($this->tab=='info') {
 //$this->searchdevices($out);
 
-$filename = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
+$filename = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
 
 //$a=shell_exec("sudo bluetoothctl");
 $a=shell_exec("hciconfig");
@@ -413,14 +413,14 @@ $a=shell_exec("hciconfig");
 $a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
 $out['bluetoothctl']=$a;
 //////////
-$filename = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
+$filename = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
 $a=shell_exec("hcitool dev");
 $a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
 $out['hcitooldev']=$a;
 
 
 //////////
-$filename = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
+$filename = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
 $a=shell_exec("sudo hcitool con");
 $a =  str_replace( array("\r\n","\r","\n") , '<br>' , $a);
 $out['con']=$a;
@@ -550,7 +550,7 @@ $id=$cmd_rec['ID'];
 $mac=$cmd_rec['MAC'];
 
 
-$file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
+$file = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
 //echo php_uname();
 //echo PHP_OS;
 $debug = file_get_contents($file);
@@ -558,7 +558,7 @@ $debug .= "get info about $mac run at ".gg('sysdate').' '.gg('timenow')."<br>\n"
 file_put_contents($file, $debug);
 
 
-//echo "это линус";
+//echo "СЌС‚Рѕ Р»РёРЅСѓСЃ";
 //$cmd='nmap -sn 192.168.1.0/24';
 //$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
 
@@ -644,7 +644,7 @@ $id=$cmd_rec['ID'];
 $mac=$cmd_rec['MAC'];
 
 
-$file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
+$file = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
 //echo php_uname();
 //echo PHP_OS;
 $debug = file_get_contents($file);
@@ -653,7 +653,7 @@ $debug .= "get handles from  $mac run at ".gg('sysdate').' '.gg('timenow')."<br>
 file_put_contents($file, $debug);
 
 
-//echo "это линус";
+//echo "СЌС‚Рѕ Р»РёРЅСѓСЃ";
 //$cmd='nmap -sn 192.168.1.0/24';
 //$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
 
@@ -762,7 +762,7 @@ debmes($sql, 'bletool');
 
 
 
-$file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
+$file = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
 //echo php_uname();
 //echo PHP_OS;
 $debug = file_get_contents($file);
@@ -770,7 +770,7 @@ $debug .= "get values from $mac $type run at ".gg('sysdate').' '.gg('timenow')."
 file_put_contents($file, $debug);
 
 
-//echo "это линус";
+//echo "СЌС‚Рѕ Р»РёРЅСѓСЃ";
 //$cmd='nmap -sn 192.168.1.0/24';
 //$cmd='echo 192.168.1.{1..254}|xargs -n1 -P0 ping -c1|grep "bytes from"';
 $data = array();
@@ -820,10 +820,10 @@ break;
 
 
 /////////////////
-////получение handle для всех устройств
+////РїРѕР»СѓС‡РµРЅРёРµ handle РґР»СЏ РІСЃРµС… СѓСЃС‚СЂРѕР№СЃС‚РІ
 /////////////////
  function gethandlevalue($id,$handle,$a="00" ) {
-$file = ROOT.'cms/cached/bletools'; // полный путь к нужному файлу
+$file = ROOT.'cms/cached/bletools'; // РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅСѓР¶РЅРѕРјСѓ С„Р°Р№Р»Сѓ
 $this->resethci();
 
 	$mac = SQLSelectOne("SELECT * FROM ble_devices where ID='$id'")['MAC'];
@@ -850,7 +850,7 @@ return $val[1];
 }
 
 //////////////
-///сброс для всех
+///СЃР±СЂРѕСЃ РґР»СЏ РІСЃРµС…
 //////////////
 
  function resethci() {
@@ -892,7 +892,7 @@ sleep(1);
 
 
 //////////////
-///вендор
+///РІРµРЅРґРѕСЂ
 //////////////
  function getvendor($mac) {
 
@@ -914,7 +914,7 @@ return $vendor;
 
 
 //////////////
-///получение raw для mi plant
+///РїРѕР»СѓС‡РµРЅРёРµ raw РґР»СЏ mi plant
 //////////////
 function getrawmiflora($mac) {
 //set_time_limit(10);
@@ -1125,7 +1125,7 @@ return  $value;
 
 
 //////////////
-///получение raw для eq3
+///РїРѕР»СѓС‡РµРЅРёРµ raw РґР»СЏ eq3
 //////////////
 function getraweq3($mac, $handle, $a) {
 //set_time_limit(10);
