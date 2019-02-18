@@ -82,6 +82,8 @@ setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'], $newvalue
 //                    01 6e 00 00 7f 75 81 60 66 61 66 64 61 64 9b
 //                                 |  |  |  |  |  |  |  |  |  |
 //Byte:                0  1  2  3  4  5  6  7  8  9 10 11 12 13 14
+//Byte:                		  127 117
+				  
 //                                 |  |  |  |  |  |  |  |  |  |
 //Serial from badge:               O  E  Q  0  6  1  6  4  1  4
   
@@ -96,7 +98,7 @@ $answ=$this->getraweq3($mac, "0x0411", "00");
 
 $bytes=explode(" ",$answ);
 
-
+/*
 	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='snraw'";
 	$cmd_rec2 = SQLSelectOne($sql);
 	$cmd_rec2['TITLE']='snraw';
@@ -115,6 +117,7 @@ $bytes=explode(" ",$answ);
 if ($cmd_rec2['LINKED_OBJECT']!='' && $cmd_rec2['LINKED_PROPERTY']!='') {
 setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'], $answ,array($this->name => '0'));
 }
+*/
 
 
 
@@ -123,7 +126,13 @@ setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'], $answ,arr
 	$cmd_rec2['TITLE']='sn';
 	$cmd_rec2['DEVICE_ID']=$id;
 //	$cmd_rec2['VALUE']=hex2bin($bytes[4]).hex2bin($bytes[5]).hex2bin($bytes[6]).hex2bin($bytes[7]).hex2bin($bytes[8]).hex2bin($bytes[9]).hex2bin($bytes[10]).hex2bin($bytes[11]).hex2bin($bytes[12]).hex2bin($bytes[13]);
-        $newvalue=hex2bin($bytes[4].$bytes[5].$bytes[6].$bytes[7].$bytes[8].$bytes[9].$bytes[10].$bytes[11].$bytes[12].$bytes[13]);
+//        $newvalue=hex2bin($bytes[4]-0x30).$bytes[5].$bytes[6].$bytes[7].$bytes[8].$bytes[9].$bytes[10].$bytes[11].$bytes[12].$bytes[13]);
+//        $newvalue=hex2bin(bin2hex($bytes[4])-0x30).hex2bin(bin2hex($bytes[5])-0x30).hex2bin(bin2hex($bytes[6])-0x30).hex2bin(bin2hex($bytes[7])-0x30).hex2bin(bin2hex($bytes[8])-0x30).hex2bin(bin2hex($bytes[9])-0x30).hex2bin(bin2hex($bytes[10])-0x30).hex2bin(bin2hex($bytes[11])-0x30).hex2bin(bin2hex($bytes[12])-0x30).hex2bin(bin2hex($bytes[13])-0x30);
+       $newvalue=chr(hexdec($bytes[5])-48).chr(hexdec($bytes[6])-48).chr(hexdec($bytes[7])-48).chr(hexdec($bytes[8])-48).chr(hexdec($bytes[9])-48).chr(hexdec($bytes[10])-48).chr(hexdec($bytes[11])-48).chr(hexdec($bytes[12])-48).chr(hexdec($bytes[13])-48).chr(hexdec($bytes[14])-48);
+//01 6e 00 00 7d 75 81 60 68 64 68 63 61 61 9b 
+//					     11
+//MEQ084 83 11
+
 	$cmd_rec2['VALUE']=$newvalue;
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
@@ -147,7 +156,7 @@ $answ=$this->getraweq3($mac, "0x0411", "03");
 
 $bytes=explode(" ",$answ);
 
-
+/*
 	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='raw'";
 	$cmd_rec2 = SQLSelectOne($sql);
 	$cmd_rec2['TITLE']='raw';
@@ -166,7 +175,7 @@ if ($cmd_rec2['LINKED_OBJECT']!='' && $cmd_rec2['LINKED_PROPERTY']!='') {
 setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$answ ,array($this->name => '0'));
 }
 
-
+*/
 
 
 
@@ -473,127 +482,5 @@ setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$newvalue 
 
 
 
-
-/*
-if (hexdec($bytes[2])=='0')  {$vacation="false";} else {$vacation="true";}
-
-	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='vacation'";
-	$cmd_rec2 = SQLSelectOne($sql);
-	$cmd_rec2['TITLE']='vacation';
-	$cmd_rec2['DEVICE_ID']=$id;
-	$cmd_rec2['VALUE']=$vacation;
-	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
-
-
-if (hexdec($bytes[3])=='0')  {$boost="false";} else {$boost="true";}
-
-	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='boost'";
-	$cmd_rec2 = SQLSelectOne($sql);
-	$cmd_rec2['TITLE']='boost';
-	$cmd_rec2['DEVICE_ID']=$id;
-	$cmd_rec2['VALUE']=$boost;
-	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
-
-	if (!$cmd_rec2['ID']) 
-	{
-	//$cmd_rec['ONLINE']=$onlinest;
-	SQLInsert('ble_commands', $cmd_rec2);
-	} else {
-	SQLUpdate('ble_commands', $cmd_rec2);
-	}
-
-if (hexdec($bytes[4])=='0')  {$dst="false";} else {$dst="true";}
-
-	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='dst'";
-	$cmd_rec2 = SQLSelectOne($sql);
-	$cmd_rec2['TITLE']='dst';
-	$cmd_rec2['DEVICE_ID']=$id;
-	$cmd_rec2['VALUE']=$dst;
-	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
-
-	if (!$cmd_rec2['ID']) 
-	{
-	//$cmd_rec['ONLINE']=$onlinest;
-	SQLInsert('ble_commands', $cmd_rec2);
-	} else {
-	SQLUpdate('ble_commands', $cmd_rec2);
-	}
-
-if (hexdec($bytes[5])=='0')  {$ow="false";} else {$ow="true";}
-
-	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='open_window'";
-	$cmd_rec2 = SQLSelectOne($sql);
-	$cmd_rec2['TITLE']='open_window';
-	$cmd_rec2['DEVICE_ID']=$id;
-	$cmd_rec2['VALUE']=$ow;
-	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
-
-	if (!$cmd_rec2['ID']) 
-	{
-	//$cmd_rec['ONLINE']=$onlinest;
-	SQLInsert('ble_commands', $cmd_rec2);
-	} else {
-	SQLUpdate('ble_commands', $cmd_rec2);
-	}
-
-
-if (hexdec($bytes[6])=='0')  {$locked="false";} else {$locked="true";}
-
-	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='locked'";
-	$cmd_rec2 = SQLSelectOne($sql);
-	$cmd_rec2['TITLE']='locked';
-	$cmd_rec2['DEVICE_ID']=$id;
-	$cmd_rec2['VALUE']=$locked;
-	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
-
-	if (!$cmd_rec2['ID']) 
-	{
-	//$cmd_rec['ONLINE']=$onlinest;
-	SQLInsert('ble_commands', $cmd_rec2);
-	} else {
-	SQLUpdate('ble_commands', $cmd_rec2);
-	}
-
-if (hexdec($bytes[8])=='0')  {$lb="false";} else {$lb="true";}
-
-	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='low_battery'";
-	$cmd_rec2 = SQLSelectOne($sql);
-	$cmd_rec2['TITLE']='low_battery';
-	$cmd_rec2['DEVICE_ID']=$id;
-	$cmd_rec2['VALUE']=$lb;
-	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
-
-	if (!$cmd_rec2['ID']) 
-	{
-	//$cmd_rec['ONLINE']=$onlinest;
-	SQLInsert('ble_commands', $cmd_rec2);
-	} else {
-	SQLUpdate('ble_commands', $cmd_rec2);
-	}
-
-
-
-
-
-
-
-	$sql="SELECT * FROM ble_commands where DEVICE_ID='$id' and TITLE='mode'";
-	$cmd_rec2 = SQLSelectOne($sql);
-	$cmd_rec2['TITLE']='mode';
-	$cmd_rec2['DEVICE_ID']=$id;
-	$cmd_rec2['VALUE']=hex2bin($bytes[1]).hex2bin($bytes[2]).hex2bin($bytes[3]).hex2bin($bytes[4]);
-	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
-
-	if (!$cmd_rec2['ID']) 
-	{
-	//$cmd_rec['ONLINE']=$onlinest;
-	SQLInsert('ble_commands', $cmd_rec2);
-	} else {
-	SQLUpdate('ble_commands', $cmd_rec2);
-	}
-
-
-$answ=$this->gethandlevalue($id,'0x0411', '04');
-*/
 
 
