@@ -7,7 +7,7 @@
 */
 //
 //
-//ini_set ('display_errors', 'off');
+ini_set ('display_errors', 'off');
 //ob_implicit_flush(true);
 set_time_limit(300);
 
@@ -374,7 +374,7 @@ exec('sudo timeout -s INT 30s hcitool lescan | grep ":"',$data);
  
   			 	$vendor=$this->getvendor($mac);
 
-file_put_contents($file, $debug);
+//file_put_contents($file, $debug);
 
 
  		if(!empty($mac)) {
