@@ -7,9 +7,9 @@
 */
 //
 //
-ini_set ('display_errors', 'off');
+//ini_set ('display_errors', 'off');
 //ob_implicit_flush(true);
-set_time_limit(300);
+//set_time_limit(300);
 
 
 class bletool extends module {
