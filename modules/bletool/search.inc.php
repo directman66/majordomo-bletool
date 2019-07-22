@@ -40,15 +40,19 @@
   $out['SORTBY']=$sortby_snmpdevices;
   // SEARCH RESULTS
   $res=SQLSelect("SELECT ble_devices.* FROM ble_devices WHERE $qry ORDER BY ".$sortby_snmpdevices);
-  if ($res[0]['ID']) {
-   colorizeArray($res);
-   $total=count($res);
+$total=count($res);
    for($i=0;$i<$total;$i++) {
     // some action for every record if required
-   }
+
+ if (time()-strtotime($res[$i]['UPDATED'])>3000) {
+  $res[$i]['LOST']='1';}
+
+         }
+
+   
    $out['RESULT']=$res;
 
-  } 
+   
 
 
 
