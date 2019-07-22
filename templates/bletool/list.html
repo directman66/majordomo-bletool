@@ -18,27 +18,27 @@
 <tbody>
 [#begin RESULT#]
 <tr >
- <td style="vertical-align:middle">
+ <td style="vertical-align:middle[#if LOST#] ;color:lightgray;[#endif#]">
    [#ID#]
  </td>
 
- <td style="vertical-align:middle">
+ <td style="vertical-align:middle[#if LOST#] ;color:lightgray;[#endif#]">
   
 
    <a href="?view_mode=edit_devices&id=[#ID#]&tab=data" >[#TITLE#] </a>
  </td>
 
- <td style="vertical-align:middle">
+ <td style="vertical-align:middle[#if LOST#] ;color:lightgray;[#endif#]">
    [#TYPE#] </td>
 
 
- <td style="vertical-align:middle">
+ <td style="vertical-align:middle[#if LOST#] ;color:lightgray;font-weight:bold;[#endif#]">
 
    <a href="?view_mode=edit_devices&id=[#ID#]&tab=indata"  class="btn btn-default" title="Get data">
    [#MAC#]</a> </td>
 
 
- <td style="vertical-align:middle">
+ <td style="vertical-align:middle[#if LOST#] ;color:lightgray;[#endif#]">
 [#if VENDOR==""#]    <a href="?view_mode=updatevendor&id=[#MAC#]&tab=indata"   title="Update vendor">update vendor
 [#else#]
     [#VENDOR#]
@@ -47,7 +47,7 @@
  </td>
 
 
- <td style="vertical-align:middle">
+ <td style="vertical-align:middle[#if LOST#] ;color:lightgray;[#endif#]">
 [#ADDED#]
 
 	[#if ONLINE!=""#]
@@ -62,7 +62,7 @@
 
  </td>
 
- <td style="vertical-align:middle">
+ <td style="vertical-align:middle[#if LOST#] ;color:lightgray;[#endif#]">
    [#UPDATED#] 
  </td>
 
