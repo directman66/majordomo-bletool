@@ -386,6 +386,7 @@ exec('sudo timeout -s INT 30s hcitool lescan | grep ":"',$data);
 $macc=strtoupper($mac);
                if (substr($macc,0,8) == 'C4:7C:8D') {$cmd_rec['TYPE']='mi-flora-plant';}
                if (substr($macc,0,8) == '4C:65:A8') {$cmd_rec['TYPE']='xiaomi-smart-thermostat';}
+               if (substr($macc,0,8) == 'A4:C1:38') {$cmd_rec['TYPE']='xiaomi-smart-thermostat2';}
                if (substr($macc,0,8) == '00:1A:22') {$cmd_rec['TYPE']='eQ-3-radiator-thermostat';}
                if (substr($macc,0,8) == 'F8:AF:0F ') {$cmd_rec['TYPE']='mi-band-2';}
                if (substr($macc,0,8) == '58:80:3С ') {$cmd_rec['TYPE']='amazfit-stratos';}
@@ -930,7 +931,12 @@ break;
   require(DIR_MODULES.$this->name.'/xiaomi-smart-thermostat_values.php');
 //	}}
 break;
-	
+
+   case "xiaomi-smart-thermostat2":
+  require(DIR_MODULES.$this->name.'/xiaomi-smart-thermostat2_values.php');
+//	}}
+break;
+
 
 }
 
@@ -979,6 +985,11 @@ break;
 
    case "xiaomi-smart-thermostat":
   require(DIR_MODULES.$this->name.'/xiaomi-smart-thermostat_values.php');
+//	}}
+break;
+
+   case "xiaomi-smart-thermostat2":
+  require(DIR_MODULES.$this->name.'/xiaomi-smart-thermostat2_values.php');
 //	}}
 break;
 	
