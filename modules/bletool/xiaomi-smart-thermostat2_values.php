@@ -31,7 +31,7 @@ setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$newvalue 
 }
 */
 
-$answ=$this->getrawmithermostat($mac);
+$answ=$this->getrawmithermostat($mac, '0x0010 0100');
 
 
 $bytes=explode(" ",$answ);
