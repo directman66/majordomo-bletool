@@ -1763,7 +1763,7 @@ setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$newvalue 
 //////////////////////////////////
 //////////////////////////////////
 
-function getrawmithermostat($mac, $requestData) {
+function getrawmithermostat($mac, $requestData, $handleData) {
 
 debmes('вызвали getrawmithermostat', 'bletool');
 //set_time_limit(10);
@@ -1820,7 +1820,7 @@ $s=$s+1;
 }
 
 if ($state==12) { 
-fputs($pipes[0], 'char-read-hnd 0x35'."\n");
+fputs($pipes[0], 'char-read-hnd '.$handleData."\n");
 sleep(1);
 }
 
