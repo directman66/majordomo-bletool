@@ -31,7 +31,7 @@ setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$newvalue 
 }
 */
 
-$answ=$this->getrawmithermostat($mac, '0x0010 0100', '0x35');
+$answ=$this->getrawmithermostat($mac, '0x004c 0100', '0x4b');
 
 
 $bytes=explode(" ",$answ);
@@ -45,7 +45,7 @@ $bytes=explode(" ",$answ);
 	$cmd_rec2['VALUE']=$newvalue;
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
-	if (!$cmd_rec2['ID']) 
+	if (!$cmd_rec2['ID'])
 	{
 	//$cmd_rec['ONLINE']=$onlinest;
 	SQLInsert('ble_commands', $cmd_rec2);
@@ -63,12 +63,11 @@ setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$newvalue 
 	$cmd_rec2['DEVICE_ID']=$id;
 //	$newvalue=hex2bin(str_replace(' ','',$answ));
 //	$newvalue=(str_replace(' ','',$answ));
-        $newvalue=hex2bin($bytes[1]).hex2bin($bytes[2]).hex2bin($bytes[3]).hex2bin($bytes[4]).hex2bin($bytes[5]).hex2bin($bytes[6]).hex2bin($bytes[7]).hex2bin($bytes[8]).hex2bin($bytes[9]).hex2bin($bytes[10]).hex2bin($bytes[11]).hex2bin($bytes[12]).hex2bin($bytes[13]).hex2bin($bytes[14]);
-	$newvalue=explode("=",explode(" ",$newvalue)[0])[1];
+        $newvalue=hexdec($bytes[2] . $bytes[1]) / 100;
 	$cmd_rec2['VALUE']=$newvalue;
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
 
-	if (!$cmd_rec2['ID']) 
+	if (!$cmd_rec2['ID'])
 	{
 	//$cmd_rec['ONLINE']=$onlinest;
 	SQLInsert('ble_commands', $cmd_rec2);
@@ -87,14 +86,13 @@ setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$newvalue 
 	$cmd_rec2['DEVICE_ID']=$id;
 //	$newvalue=hex2bin(str_replace(' ','',$answ));
 //	$newvalue=(str_replace(' ','',$answ));
-        $newvalue=hex2bin($bytes[1]).hex2bin($bytes[2]).hex2bin($bytes[3]).hex2bin($bytes[4]).hex2bin($bytes[5]).hex2bin($bytes[6]).hex2bin($bytes[7]).hex2bin($bytes[8]).hex2bin($bytes[9]).hex2bin($bytes[10]).hex2bin($bytes[11]).hex2bin($bytes[12]).hex2bin($bytes[13]).hex2bin($bytes[14]);
-        $newvalue=explode("=",explode(" ",$newvalue)[1])[1];
+        $newvalue=hexdec($bytes[3]);
 	$cmd_rec2['VALUE']=$newvalue;
 	$cmd_rec2['UPDATED']=date('Y-m-d H:i:s');
         debmes($cmd_rec2, 'bletool');
 
 
-	if (!$cmd_rec2['ID']) 
+	if (!$cmd_rec2['ID'])
 	{
 	//$cmd_rec['ONLINE']=$onlinest;
 	SQLInsert('ble_commands', $cmd_rec2);

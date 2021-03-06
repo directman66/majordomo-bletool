@@ -387,6 +387,7 @@ $macc=strtoupper($mac);
                if (substr($macc,0,8) == 'C4:7C:8D') {$cmd_rec['TYPE']='mi-flora-plant';}
                if (substr($macc,0,8) == '4C:65:A8') {$cmd_rec['TYPE']='xiaomi-smart-thermostat';}
                if (substr($macc,0,8) == 'A4:C1:38') {$cmd_rec['TYPE']='xiaomi-smart-thermostat2';}
+               if (substr($macc,0,8) == 'E7:2E:01') {$cmd_rec['TYPE']='xiaomi-smart-clock';}
                if (substr($macc,0,8) == '00:1A:22') {$cmd_rec['TYPE']='eQ-3-radiator-thermostat';}
                if (substr($macc,0,8) == 'F8:AF:0F ') {$cmd_rec['TYPE']='mi-band-2';}
                if (substr($macc,0,8) == '58:80:3С ') {$cmd_rec['TYPE']='amazfit-stratos';}
@@ -938,6 +939,12 @@ break;
 break;
 
 
+   case "xiaomi-smart-clock":
+  require(DIR_MODULES.$this->name.'/xiaomi-smart-clock_values.php');
+//	}}
+break;
+
+
 }
 
 
@@ -990,6 +997,11 @@ break;
 
    case "xiaomi-smart-thermostat2":
   require(DIR_MODULES.$this->name.'/xiaomi-smart-thermostat2_values.php');
+//	}}
+break;
+
+   case "xiaomi-smart-clock":
+  require(DIR_MODULES.$this->name.'/xiaomi-smart-clock_values.php');
 //	}}
 break;
 	
@@ -1751,7 +1763,7 @@ setGlobal($cmd_rec2['LINKED_OBJECT'].'.'.$cmd_rec2['LINKED_PROPERTY'],$newvalue 
 //////////////////////////////////
 //////////////////////////////////
 
-function getrawmithermostat($mac) {
+function getrawmithermostat($mac, $requestData, $handleData) {
 
 debmes('вызвали getrawmithermostat', 'bletool');
 //set_time_limit(10);
@@ -1799,16 +1811,16 @@ fputs($pipes[0], "connect $mac"."\n");
 sleep(2);
 }
 
-if ($state==1&&$s==0) { 
-//echo $i.' send 0x33 A01F:';
-fputs($pipes[0], 'char-write-req 0x0010 0100'."\n");
+if ($state==1&&$s==0) {
+debmes('char-write-req '.$requestData, 'bletool');
+fputs($pipes[0], 'char-write-req '.$requestData."\n");
 sleep(3);
 $s=$s+1;
 //$state=2;
 }
 
 if ($state==12) { 
-fputs($pipes[0], 'char-read-hnd 0x35'."\n");
+fputs($pipes[0], 'char-read-hnd '.$handleData."\n");
 sleep(1);
 }
 
